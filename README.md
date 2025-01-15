@@ -2,6 +2,7 @@
 
 A powerful documentation crawler and extractor that helps you discover, crawl, and convert web documentation into clean markdown format. Built with Next.js, FastAPI, and Crawl4AI.
 
+![alt text](image.png)
 ## ✨ Features
 
 - 🔍 **Smart Discovery**: Automatically finds and maps all related documentation pages

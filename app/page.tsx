@@ -117,10 +117,10 @@ export default function Home() {
       <header className="w-full py-12 bg-gradient-to-r from-gray-900/50 to-gray-800/50 backdrop-blur-sm border-b border-gray-700">
         <div className="container mx-auto px-4 text-center">
           <h1 className="text-5xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-500 mb-4">
-            DevDocs Explorer
+            DevDocs
           </h1>
           <p className="text-gray-300 text-lg max-w-2xl mx-auto">
-            Discover and extract documentation with our advanced web crawler
+            Discover and extract documentation for quicker development
           </p>
           <p className="text-sm text-gray-400 mt-2">by CyberAGI Inc</p>
         </div>
