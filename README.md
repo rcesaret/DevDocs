@@ -9,7 +9,8 @@ This is V1 of DevDocs, eventually I will be adding MCP servers, Shareable Vector
 Stay tuned. 
 
 
-![alt text](image.png)
+![image](https://github.com/user-attachments/assets/40f9e0b0-b662-46bf-821a-4dab23c54649)
+
 ## ✨ Features
 
 - 🔍 **Smart Discovery**: Automatically finds and maps all related documentation pages
@@ -102,41 +103,6 @@ yarn dev
 - Error handling and recovery
 - Session management
 
-## 🛠️ Development
-
-### Project Structure
-```
-.
-├── app/                  # Next.js app directory
-│   ├── api/             # API routes
-│   └── page.tsx         # Main page component
-├── backend/             # Python backend
-│   ├── app/            # FastAPI application
-│   │   ├── main.py     # Server entry point
-│   │   └── crawler.py  # Crawling logic
-│   └── requirements.txt # Python dependencies
-├── components/          # React components
-├── lib/                 # Shared utilities
-└── public/             # Static assets
-```
-
-### Adding New Features
-1. Create new components in `components/`
-2. Add API endpoints in `backend/app/`
-3. Update types in `lib/types.ts`
-4. Add tests as needed
-
-## 📝 API Documentation
-
-### Discover Endpoint
-- `POST /api/discover`
-- Input: `{ url: string }`
-- Output: `{ pages: DiscoveredPage[], message: string }`
-
-### Crawl Endpoint
-- `POST /api/crawl`
-- Input: `{ pages: DiscoveredPage[] }`
-- Output: `{ markdown: string, stats: CrawlStats }`
 
 ## 🤝 Contributing
 
@@ -150,6 +116,5 @@ yarn dev
 
 Apache-2.0 license
 
----
 
-Built with ❤️ by CyberAGI Inc. | [Report Issues](https://github.com/yourusername/DevDocs/issues)
+Built with ❤️ by CyberAGI Inc. | Report Issues like you would do for any Github repo, if you know how to fix it, provide a fix using the Contribution method. 
