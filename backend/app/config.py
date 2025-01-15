@@ -41,7 +41,7 @@ class CrawlConfigManager:
             cache_mode=CacheMode.ENABLED,
             exclude_external_links=False,
             exclude_social_media_links=True,
-            wait_until='networkidle0',
+            wait_until='networkidle',
             page_timeout=120000,
             simulate_user=True,
             magic=True,
@@ -80,7 +80,7 @@ class CrawlConfigManager:
             exclude_social_media_links=True,
             
             # Page loading settings
-            wait_until='networkidle0',
+            wait_until='networkidle',
             page_timeout=120000,
             
             # Core features
