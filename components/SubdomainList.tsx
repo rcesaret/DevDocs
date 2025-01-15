@@ -9,23 +9,39 @@ interface SubdomainListProps {
 }
 
 export default function SubdomainList({ subdomains, onCrawlAll, isProcessing }: SubdomainListProps) {
-  const getStatusIcon = (status: string) => {
+  const getStatusIcon = (status: string, isProcessing: boolean) => {
     switch (status) {
-      case 'crawled':
+      case 'complete':
         return <CheckCircle2 className="w-4 h-4 text-green-400" />
       case 'error':
         return <AlertCircle className="w-4 h-4 text-red-400" />
+      case 'fetching':
+        return <Loader2 className={`w-4 h-4 text-yellow-400 ${isProcessing ? 'animate-spin' : ''}`} />
+      case 'scraping':
+        return <Loader2 className={`w-4 h-4 text-purple-400 ${isProcessing ? 'animate-spin' : ''}`} />
+      case 'crawled':
+        return <CheckCircle2 className="w-4 h-4 text-green-400" />
+      case 'pending':
+        return <Loader2 className="w-4 h-4 text-blue-400" />
       default:
-        return <Loader2 className="w-4 h-4 text-blue-400 animate-spin" />
+        return <Loader2 className="w-4 h-4 text-blue-400" />
     }
   }
 
-  const getStatusStyle = (status: string) => {
+  const getStatusStyle = (status: string, isProcessing: boolean) => {
     switch (status) {
-      case 'crawled':
+      case 'complete':
         return 'bg-green-500/10 text-green-400 border-green-500/20'
       case 'error':
         return 'bg-red-500/10 text-red-400 border-red-500/20'
+      case 'fetching':
+        return `bg-yellow-500/10 text-yellow-400 border-yellow-500/20 transition-all duration-300 ${isProcessing ? 'opacity-100' : 'opacity-75'}`
+      case 'scraping':
+        return `bg-purple-500/10 text-purple-400 border-purple-500/20 transition-all duration-300 ${isProcessing ? 'opacity-100' : 'opacity-75'}`
+      case 'crawled':
+        return 'bg-green-500/10 text-green-400 border-green-500/20'
+      case 'pending':
+        return 'bg-blue-500/10 text-blue-400 border-blue-500/20'
       default:
         return 'bg-blue-500/10 text-blue-400 border-blue-500/20'
     }
@@ -105,10 +121,10 @@ export default function SubdomainList({ subdomains, onCrawlAll, isProcessing }: 
                     <td className="px-4 py-3">
                       <div className={`
                         inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-medium
-                        border ${getStatusStyle(page.status)}
+                        border transition-all duration-300 ${getStatusStyle(page.status, isProcessing)}
                       `}>
-                        {getStatusIcon(page.status)}
-                        <span>{page.status}</span>
+                        {getStatusIcon(page.status, isProcessing)}
+                        <span className="capitalize">{page.status}</span>
                       </div>
                     </td>
                   </tr>

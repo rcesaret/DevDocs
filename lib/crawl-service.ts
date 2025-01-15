@@ -48,11 +48,13 @@ export async function discoverSubdomains(primaryUrl: string): Promise<Discovered
   }
 }
 
-export async function crawlPages(pages: DiscoveredPage[]): Promise<CrawlResult> {
+export async function crawlPages(
+  pages: DiscoveredPage[],
+  onStatusUpdate?: (updatedPages: DiscoveredPage[]) => void
+): Promise<CrawlResult> {
   try {
     console.log('Making request to backend for crawling:', pages.length, 'pages')
-    console.log('Request payload:', { pages })
-
+    
     const response = await fetch(`${BACKEND_URL}/api/crawl`, {
       method: 'POST',
       headers: {
@@ -61,19 +63,31 @@ export async function crawlPages(pages: DiscoveredPage[]): Promise<CrawlResult> 
       body: JSON.stringify({ pages }),
     })
 
-    console.log('Crawl response status:', response.status)
-    const data = await response.json()
-    console.log('Crawl response data:', data)
-
     if (!response.ok) {
-      console.error('Error response:', data)
-      throw new Error(data.detail || 'Failed to crawl pages')
+      throw new Error(await response.text() || 'Failed to crawl pages')
     }
 
-    // Validate the response data
-    if (!data.markdown && !data.error) {
-      console.warn('No markdown or error in response:', data)
+    // Set up SSE for status updates
+    const eventSource = new EventSource(`${BACKEND_URL}/api/crawl/status`)
+    
+    eventSource.onmessage = (event) => {
+      try {
+        const update = JSON.parse(event.data)
+        if (update.pages && onStatusUpdate) {
+          onStatusUpdate(update.pages)
+        }
+      } catch (e) {
+        console.error('Error parsing status update:', e)
+      }
     }
+
+    eventSource.onerror = () => {
+      eventSource.close()
+    }
+
+    // Wait for the final response
+    const data = await response.json()
+    eventSource.close()
 
     return {
       markdown: data.markdown || '',

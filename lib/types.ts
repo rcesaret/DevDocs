@@ -1,7 +1,7 @@
 export interface DiscoveredPage {
   url: string
   title?: string
-  status: 'pending' | 'crawled' | 'error'
+  status: 'pending' | 'fetching' | 'scraping' | 'complete' | 'crawled' | 'error'
 }
 
 export interface CrawlStats {
