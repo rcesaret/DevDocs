@@ -2,8 +2,11 @@
 
 A powerful documentation crawler and extractor that helps you discover, crawl, and convert web documentation into clean markdown format. Built with Next.js, FastAPI, and Crawl4AI.
 
-Why?: This is from a personal frustration of mine, coding with LLM is great but the knowledge they use is old and technology is developing at a fast rate. So how do you bring in the latest knowledge base of a technology in the hands of a powerful model? DevDocs!
-What I wanted to build is a simple platform that can take a parent URL of a documentation page, spider through all its relevent webpages like /learn /quickstart /API etc. and convert them into markdown for me to add into my MCP server. 
+The idea of DevDocs is to ensure that software engineers and (LLM) software devs dont have to go through copious amount of tech documentation just to implement the tech. 
+
+Traditionally: You would use cline or equivalent to query what you want to build and it will build it for you using claude or deepseek, but the knowledge cut off date hinders the ability for Cline to provide you the best code for the technology. So you burn through tokens and go through the documentation of that technology and send it to cline or upload to an MCP server. Problem is that the docs are huuuge and you cant copy paste everything. Wouldnt it be easier if a complete markdown file is built for you to upload to your MCP server of choice? 
+
+New way: Using Devdocs (Free on Github) you get to just upload the primary URL and crawl every page related to that URL and download the contents in 1 concise markdown. Boom now you have complete knowledge of that tech ready for Cline to work through. This came from a personal frustration of mine when using the documentation of LlamaIndex and Langchain. I will be making improvements to the features so use it and star the repo so you are updated. 
 
 This is V1 of DevDocs, eventually I will be adding MCP servers, Shareable Vector Database, Agents which will be pros in particular documentation and can code for you. 
 Stay tuned. 
