@@ -2,6 +2,13 @@
 
 A powerful documentation crawler and extractor that helps you discover, crawl, and convert web documentation into clean markdown format. Built with Next.js, FastAPI, and Crawl4AI.
 
+Why?: This is from a personal frustration of mine, coding with LLM is great but the knowledge they use is old and technology is developing at a fast rate. So how do you bring in the latest knowledge base of a technology in the hands of a powerful model? DevDocs!
+What I wanted to build is a simple platform that can take a parent URL of a documentation page, spider through all its relevent webpages like /learn /quickstart /API etc. and convert them into markdown for me to add into my MCP server. 
+
+This is V1 of DevDocs, eventually I will be adding MCP servers, Shareable Vector Database, Agents which will be pros in particular documentation and can code for you. 
+Stay tuned. 
+
+
 ![alt text](image.png)
 ## ✨ Features
 
