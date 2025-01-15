@@ -69,19 +69,7 @@ export default function Home() {
     setIsCrawling(true)
     try {
       console.log('Starting crawl for pages:', discoveredPages)
-      const result = await crawlPages(discoveredPages, (updatedPages) => {
-        // Update pages with new status
-        setDiscoveredPages(current => {
-          const pageMap = new Map(current.map(p => [p.url, p]))
-          updatedPages.forEach(update => {
-            const existingPage = pageMap.get(update.url)
-            if (existingPage) {
-              pageMap.set(update.url, { ...existingPage, status: update.status })
-            }
-          })
-          return Array.from(pageMap.values())
-        })
-      })
+      const result = await crawlPages(discoveredPages)
       console.log('Crawl result:', result)
       
       if (result.error) {
@@ -94,6 +82,14 @@ export default function Home() {
         pagesCrawled: discoveredPages.length,
         dataExtracted: formatBytes(result.markdown.length)
       }))
+      
+      // Update page statuses to crawled
+      setDiscoveredPages(pages => 
+        pages.map(page => ({
+          ...page,
+          status: 'crawled'
+        }))
+      )
       
       toast({
         title: "Crawling Complete",
