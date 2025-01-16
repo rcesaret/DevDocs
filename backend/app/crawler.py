@@ -44,15 +44,29 @@ def get_browser_config() -> BrowserConfig:
 
 def get_crawler_config(session_id: str = None) -> CrawlerRunConfig:
     """Get crawler configuration for content extraction"""
+    markdown_generator = DefaultMarkdownGenerator(
+        content_filter=PruningContentFilter(
+            threshold=0.2,  # Lower threshold to keep more content
+            threshold_type="dynamic",
+            min_word_threshold=5  # Lower word threshold
+        ),
+        options={
+            "body_width": 80,
+            "ignore_images": True,
+            "escape_html": True
+        }
+    )
+    
     return CrawlerRunConfig(
-        word_count_threshold=10,  # Lower threshold for more content
+        word_count_threshold=5,  # Lower threshold to match content filter
         cache_mode=CacheMode.ENABLED,
         verbose=True,
         wait_until='networkidle',
         screenshot=False,
         pdf=False,
         magic=True,  # Enable magic mode for better bot detection avoidance
-        scan_full_page=True
+        scan_full_page=True,
+        markdown_generator=markdown_generator  # Use custom markdown generator
     )
 
 async def discover_pages(url: str) -> List[DiscoveredPage]:
@@ -60,11 +74,13 @@ async def discover_pages(url: str) -> List[DiscoveredPage]:
     Discover all related pages under a given URL using Crawl4AI's link analysis.
     """
     discovered_pages = []
+    seen_urls = set()  # Keep track of URLs we've seen
     logger.info(f"Starting discovery for URL: {url}")
     
     try:
         browser_config = get_browser_config()
         crawler_config = get_crawler_config()
+        seen_urls.add(url)  # Add the primary URL to seen set
         logger.info("Initializing crawler with browser config: %s", browser_config)
         logger.info("Using crawler config: %s", crawler_config)
         
@@ -81,16 +97,13 @@ async def discover_pages(url: str) -> List[DiscoveredPage]:
                     if potential_title:
                         title = potential_title
 
-            # Add the main page
-            discovered_pages.append(
-                DiscoveredPage(
-                    url=url,
-                    title=title,
-                    status="crawled" if result.success else "pending"
-                )
+            primary_page = DiscoveredPage(
+                url=url,
+                title=title,
+                status="crawled" if result.success else "pending"
             )
 
-            # Process internal links
+            # Process internal links first
             if hasattr(result, 'links') and isinstance(result.links, dict):
                 internal_links = result.links.get("internal", [])
                 logger.info(f"Found {len(internal_links)} internal links")
@@ -165,24 +178,58 @@ async def crawl_pages(pages: List[DiscoveredPage]) -> CrawlResult:
                     result = await crawler.arun(url=page.url, config=crawler_config)
                     
                     if result and hasattr(result, 'markdown_v2') and result.markdown_v2:
-                        # Add page title and URL as header
                         page_markdown = f"# {page.title or 'Untitled Page'}\n"
                         page_markdown += f"URL: {page.url}\n\n"
                         
-                        # Add markdown content
+                        # Try fit_markdown first, fall back to raw_markdown
+                        content = None
                         if hasattr(result.markdown_v2, 'fit_markdown') and result.markdown_v2.fit_markdown:
-                            page_markdown += result.markdown_v2.fit_markdown
-                            logger.info(f"Successfully extracted content from {page.url}")
-                        else:
-                            page_markdown += result.markdown_v2.raw_markdown
-                            logger.warning(f"Using raw markdown for {page.url}")
-                            
-                        page_markdown += "\n\n---\n\n"
+                            content = result.markdown_v2.fit_markdown
+                            logger.info(f"Using fit_markdown for {page.url}")
+                        elif hasattr(result.markdown_v2, 'raw_markdown') and result.markdown_v2.raw_markdown:
+                            content = result.markdown_v2.raw_markdown
+                            logger.info(f"Falling back to raw_markdown for {page.url}")
                         
-                        all_markdown.append(page_markdown)
-                        total_size += len(page_markdown.encode('utf-8'))
+                        if content:
+                            # Filter out navigation instructions
+                            filtered_lines = []
+                            skip_next = False
+                            for line in content.split('\n'):
+                                if skip_next:
+                                    skip_next = False
+                                    continue
+                                    
+                                # Skip navigation instructions and their following lines
+                                if 'To navigate the symbols, press' in line:
+                                    skip_next = True
+                                    continue
+                                    
+                                # Skip other navigation elements
+                                if any(x in line for x in [
+                                    'Skip Navigation',
+                                    'Search...',
+                                    '⌘K',
+                                    'symbols inside <root>'
+                                ]):
+                                    continue
+                                    
+                                filtered_lines.append(line)
+                            
+                            filtered_content = '\n'.join(filtered_lines).strip()
+                            if filtered_content:
+                                page_markdown += filtered_content
+                                page_markdown += "\n\n---\n\n"
+                                all_markdown.append(page_markdown)
+                                total_size += len(page_markdown.encode('utf-8'))
+                                logger.info(f"Successfully extracted content from {page.url}")
+                            else:
+                                logger.warning(f"Skipping {page.url} - filtered content was empty")
+                                errors += 1
+                        else:
+                            logger.warning(f"Skipping {page.url} - no markdown content available")
+                            errors += 1
                     else:
-                        logger.warning(f"No valid result for {page.url}")
+                        logger.warning(f"Skipping {page.url} - no valid result")
                         errors += 1
                         
                 except Exception as e:

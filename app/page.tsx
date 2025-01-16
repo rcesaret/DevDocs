@@ -65,11 +65,14 @@ export default function Home() {
     }
   }
 
-  const handleCrawlAll = async () => {
+  const handleCrawlSelected = async (selectedUrls: string[]) => {
     setIsCrawling(true)
     try {
-      console.log('Starting crawl for pages:', discoveredPages)
-      const result = await crawlPages(discoveredPages)
+      // Filter pages to only selected ones
+      const selectedPages = discoveredPages.filter(page => selectedUrls.includes(page.url))
+      console.log('Starting crawl for selected pages:', selectedPages)
+      
+      const result = await crawlPages(selectedPages)
       console.log('Crawl result:', result)
       
       if (result.error) {
@@ -79,15 +82,15 @@ export default function Home() {
       setMarkdown(result.markdown)
       setStats(prev => ({
         ...prev,
-        pagesCrawled: discoveredPages.length,
+        pagesCrawled: selectedPages.length,
         dataExtracted: formatBytes(result.markdown.length)
       }))
       
-      // Update page statuses to crawled
-      setDiscoveredPages(pages => 
+      // Update only selected page statuses to crawled
+      setDiscoveredPages(pages =>
         pages.map(page => ({
           ...page,
-          status: 'crawled'
+          status: selectedUrls.includes(page.url) ? 'crawled' : page.status
         }))
       )
       
@@ -151,7 +154,7 @@ export default function Home() {
               <h2 className="text-2xl font-semibold mb-6 text-green-400">Discovered Pages</h2>
               <SubdomainList
                 subdomains={discoveredPages}
-                onCrawlAll={handleCrawlAll}
+                onCrawlSelected={handleCrawlSelected}
                 isProcessing={isCrawling}
               />
             </section>

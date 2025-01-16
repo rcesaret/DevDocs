@@ -17,8 +17,9 @@ class CrawlConfigManager:
             viewport_height=1080,
             use_managed_browser=True,
             ignore_https_errors=True,
-            text_mode=True,
+            text_mode=True,  # Ensure text extraction mode
             java_script_enabled=True,
+            wait_for_timeout=5000,  # Give more time for content to load
             headers={
                 "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",
                 "Accept-Language": "en-US,en;q=0.5",
@@ -46,9 +47,9 @@ class CrawlConfigManager:
             simulate_user=True,
             magic=True,
             scan_full_page=True,
-            word_count_threshold=10,
+            word_count_threshold=10, # Lower threshold
             remove_overlay_elements=True,
-            process_iframes=True
+            process_iframes=True # Disable iframe processing to focus on main content
         )
         
         return config
@@ -58,9 +59,9 @@ class CrawlConfigManager:
         """Get standardized crawler configuration"""
         markdown_generator = DefaultMarkdownGenerator(
             content_filter=PruningContentFilter(
-                threshold=0.3,  # Lower threshold for more content
+                threshold=0.2,  # Lower threshold to keep more content
                 threshold_type="dynamic",
-                min_word_threshold=10  # Lower word threshold
+                min_word_threshold=5  # Lower word threshold to keep more content
             ),
             options={
                 "body_width": 80,
@@ -85,13 +86,14 @@ class CrawlConfigManager:
             
             # Core features
             simulate_user=True,
-            magic=True,
-            scan_full_page=True,
+            magic=True,  # Enable magic mode for better content detection
+            scan_full_page=True,  # Scan the full page
+            text_mode=True,  # Ensure text extraction
             
             # Additional settings
-            word_count_threshold=10,  # Lower threshold
+            word_count_threshold=5,  # Lower threshold to match content filter
             remove_overlay_elements=True,
-            process_iframes=True
+            process_iframes=False  # Disable iframe processing to focus on main content
         )
 
 class SSLCertificateHandler:
