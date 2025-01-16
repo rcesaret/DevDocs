@@ -1,11 +1,13 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import UrlInput from '@/components/UrlInput'
 import ProcessingBlock from '@/components/ProcessingBlock'
 import SubdomainList from '@/components/SubdomainList'
 import MarkdownOutput from '@/components/MarkdownOutput'
+import StoredFiles from '@/components/StoredFiles'
 import { discoverSubdomains, crawlPages, validateUrl, formatBytes } from '@/lib/crawl-service'
+import { saveMarkdown, loadMarkdown } from '@/lib/storage'
 import { useToast } from "@/components/ui/use-toast"
 import { DiscoveredPage } from '@/lib/types'
 
@@ -65,29 +67,50 @@ export default function Home() {
     }
   }
 
-  const handleCrawlAll = async () => {
+  const handleCrawlSelected = async (selectedUrls: string[]) => {
     setIsCrawling(true)
     try {
-      console.log('Starting crawl for pages:', discoveredPages)
-      const result = await crawlPages(discoveredPages)
+      // Filter pages to only selected ones
+      const selectedPages = discoveredPages.filter(page => selectedUrls.includes(page.url))
+      console.log('Starting crawl for selected pages:', selectedPages)
+      
+      const result = await crawlPages(selectedPages)
       console.log('Crawl result:', result)
       
       if (result.error) {
         throw new Error(result.error)
       }
       
-      setMarkdown(result.markdown)
-      setStats(prev => ({
-        ...prev,
-        pagesCrawled: discoveredPages.length,
-        dataExtracted: formatBytes(result.markdown.length)
-      }))
+      try {
+        // Save markdown to storage
+        await saveMarkdown(url, result.markdown)
+        console.log('Saved content for:', url)
+        
+        setMarkdown(result.markdown)
+        setStats(prev => ({
+          ...prev,
+          pagesCrawled: selectedPages.length,
+          dataExtracted: formatBytes(result.markdown.length)
+        }))
+
+        toast({
+          title: "Content Saved",
+          description: `Crawled content has been saved and can be loaded again later`
+        })
+      } catch (error) {
+        console.error('Error saving content:', error)
+        toast({
+          title: "Error",
+          description: "Failed to save content for later use",
+          variant: "destructive"
+        })
+      }
       
-      // Update page statuses to crawled
-      setDiscoveredPages(pages => 
+      // Update only selected page statuses to crawled
+      setDiscoveredPages(pages =>
         pages.map(page => ({
           ...page,
-          status: 'crawled'
+          status: selectedUrls.includes(page.url) ? 'crawled' : page.status
         }))
       )
       
@@ -143,6 +166,11 @@ export default function Home() {
                 stats={stats}
               />
             </section>
+
+            <section className="bg-gray-800/50 backdrop-blur-lg rounded-2xl p-6 border border-gray-700 shadow-xl">
+              <h2 className="text-2xl font-semibold mb-6 text-blue-400">Stored Files</h2>
+              <StoredFiles />
+            </section>
           </div>
 
           {/* Right Column - Results */}
@@ -151,7 +179,7 @@ export default function Home() {
               <h2 className="text-2xl font-semibold mb-6 text-green-400">Discovered Pages</h2>
               <SubdomainList
                 subdomains={discoveredPages}
-                onCrawlAll={handleCrawlAll}
+                onCrawlSelected={handleCrawlSelected}
                 isProcessing={isCrawling}
               />
             </section>

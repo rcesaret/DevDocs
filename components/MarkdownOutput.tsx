@@ -56,8 +56,8 @@ export default function MarkdownOutput({ markdown, isVisible }: MarkdownOutputPr
               </>
             ) : (
               <>
-                <Copy className="w-4 h-4" />
-                <span>Copy</span>
+                <Copy className="w-4 h-4 text-white" />
+                <span className="text-white">Copy</span>
               </>
             )}
           </Button>
