@@ -1,4 +1,4 @@
-# DevDocs 🚀
+# DevDocs 🚀 by [CyberAGI Inc](https://www.cyberagi.ai)
 
 ## Tech documenations suck, we just made it easier for you to digest it inside your LLM. 
 
@@ -101,6 +101,25 @@ yarn dev
 4. Click "Crawl All Pages" to extract content. Go get some coffee, because it takes a while. 
 5. Download or copy the generated markdown
 
+## How to Raise an Issue:
+1. First ensure that you are doing a clean install of dependencies
+```bash
+rm -rf .next
+rm -rf node_modules package-lock.json
+npm install
+npm run dev
+```
+2. If that didnt work go to the Issues tab on this page and create an issue.
+3. Template to follow:
+  ```
+1. Are you using the latest version? 
+2. What is the error, screenshot please
+3. When does this issue happen?
+4. Share your terminal logs
+5. Important: Have you used Ai to resolve it yourself? 
+    - If yes what was the fix?
+    - Can you create a PR with the fix? if not then give me the Ai output and I can create a PR for you. 
+```
 
 ## 🤝 Contributing
 
