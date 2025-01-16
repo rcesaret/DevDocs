@@ -10,8 +10,8 @@ The idea of DevDocs is to ensure that software engineers and (LLM) software devs
 
 **Goal:** I wanted to use state of the art technology but wanted the speed of an up to date LLM, cant do that without an hashtag#MCP(model context protocol) server. So now if I wanted to implement a vector database into my code, I just copy the URL, paste it in DevDocs and the tool grabs all the data from its child websites and spits it into markdown which is then uploaded into my MCP server for Claude to use. This cuts down weeks of research into just a bunch of questions. 
 
-## Future Plans:
-
+## Roadmap:
+- [X] ~~Build a Minimum Viable Product with accurate functionality~~
 - [ ] Handle Complex websites documentation like AWS, MS, langchain :D 
 - [ ] Adding MCP servers options to choose.
 - [ ] Turnkey Vector Database so all chunking, embedding is done behind the scenes while you sip your joe :) 
@@ -114,5 +114,8 @@ yarn dev
 
 Apache-2.0 license
 
+## Star History
+
+[![Star History Chart](https://api.star-history.com/svg?repos=cyberagiinc/DevDocs&type=Timeline)](https://star-history.com/#cyberagiinc/DevDocs&Timeline)
 
 Built with ❤️ by CyberAGI Inc. | Report Issues like you would do for any Github repo, if you know how to fix it, provide a fix using the Contribution method. 
