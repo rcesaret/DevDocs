@@ -80,3 +80,15 @@ next-env.d.ts
 .env.development.local
 .env.test.local
 .env.production.local
+
+# MCP Server specific
+fast-markdown-mcp/venv/
+fast-markdown-mcp/__pycache__/
+fast-markdown-mcp/**/__pycache__/
+fast-markdown-mcp/build/
+fast-markdown-mcp/dist/
+fast-markdown-mcp/*.egg-info/
+
+# Service logs
+logs/
+*.log

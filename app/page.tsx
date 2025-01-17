@@ -6,6 +6,7 @@ import ProcessingBlock from '@/components/ProcessingBlock'
 import SubdomainList from '@/components/SubdomainList'
 import MarkdownOutput from '@/components/MarkdownOutput'
 import StoredFiles from '@/components/StoredFiles'
+import MCPServerStatus from '@/components/MCPServerStatus'
 import { discoverSubdomains, crawlPages, validateUrl, formatBytes } from '@/lib/crawl-service'
 import { saveMarkdown, loadMarkdown } from '@/lib/storage'
 import { useToast } from "@/components/ui/use-toast"
@@ -165,6 +166,11 @@ export default function Home() {
                 isProcessing={isProcessing || isCrawling}
                 stats={stats}
               />
+            </section>
+
+            <section className="bg-gray-800/50 backdrop-blur-lg rounded-2xl p-6 border border-gray-700 shadow-xl">
+              <h2 className="text-2xl font-semibold mb-6 text-white">MCP Server</h2>
+              <MCPServerStatus />
             </section>
 
             <section className="bg-gray-800/50 backdrop-blur-lg rounded-2xl p-6 border border-gray-700 shadow-xl">
