@@ -70,7 +70,7 @@ That's it! The system will:
 2. Click "Discover" to find all related pages
 3. Review the discovered pages in the list
 4. Click "Crawl All Pages" to extract content. Go get some coffee, because it takes a while. 
-5. Download or copy the generated markdown
+5. Download the generated markdown/json or use it with an inbuilt MCP server with Cline/Claude
 
 ## 🤝 Contributing
 
