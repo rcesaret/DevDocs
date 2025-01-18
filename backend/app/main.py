@@ -56,7 +56,7 @@ async def get_mcp_config():
     """Get MCP server configuration"""
     try:
         # Get the project root directory
-        root_dir = str(Path(__file__).parents[3].resolve())
+        root_dir = str(Path(__file__).parents[2].resolve())
         logger.info(f"Project root directory: {root_dir}")
 
         config = {
