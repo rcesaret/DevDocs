@@ -33,20 +33,7 @@ The idea of DevDocs is to ensure that software engineers and (LLM) software devs
 - 🎯 **Precision Extraction**: Focuses on meaningful content while filtering out noise
 - 🚄 **Real-time Progress**: Live updates on crawling progress and statistics
 - 💫 **Modern UI**: Sleek, responsive interface with real-time feedback
-
-## 🏗️ Architecture
-
-### Frontend (Next.js + TypeScript)
-- Modern React components with TypeScript
-- Real-time state management with React hooks
-- Tailwind CSS for styling
-- Shadcn UI components for consistent design
-
-### Backend (FastAPI + Python)
-- FastAPI for high-performance async API
-- Crawl4AI for intelligent web crawling
-- Advanced error handling and recovery
-- Session management for reliable crawling
+- 🔥 **Inbuilt MCP Server**: No need to copy paste into your MCP server, DevDocs already has an inbuild MCP server, already connect to your claude desktop app upon installation(restart needed) and gives you the commands you need to add to your cline MCP server configs. How cool is that? 
 
 ## 🚀 Getting Started
 
@@ -88,4 +75,4 @@ Apache-2.0 license
 
 [![Star History Chart](https://api.star-history.com/svg?repos=cyberagiinc/DevDocs&type=Timeline)](https://star-history.com/#cyberagiinc/DevDocs&Timeline)
 
-Built with ❤️ by CyberAGI Inc. | Report Issues like you would do for any Github repo, if you know how to fix it, provide a fix using the Contribution method. 
+Built with ❤️ by CyberAGI Inc. & Shubham Khichi
