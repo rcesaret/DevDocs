@@ -6,7 +6,22 @@ The idea of DevDocs is to ensure that software engineers and (LLM) software devs
 
 Traditionally: You would use cline or equivalent to query what you want to build and it will build it for you using claude or deepseek, but the knowledge cut off date hinders the ability for Cline to provide you the best code for the technology. So you burn through tokens and go through the documentation of that technology and send it to cline or upload to an MCP server. Problem is that the docs are huuuge and you cant copy paste everything. Wouldnt it be easier if a complete markdown file is built for you to upload to your MCP server of choice? 
 
+<<<<<<< Updated upstream
 New way: Using Devdocs (Free on Github) you get to just upload the primary URL and crawl every page related to that URL and download the contents in 1 concise markdown. Boom now you have complete knowledge of that tech ready for Cline to work through. This came from a personal frustration of mine when using the documentation of LlamaIndex and Langchain. I will be making improvements to the features so use it and star the repo so you are updated. 
+=======
+**Solution:** I built a unique platform called DevDocs which spiders through all the child pages of the primary URL, scans if the webpages are live or dead, parses every page (FREE of cost) and converts it into markdown for easy LLM digestion. You can take the markdown and embed into your vector database or use an MCP server like obsidian and load it into Cline for software development. 
+
+**Goal:** I wanted to use state of the art technology but wanted the speed of an up to date LLM, cant do that without an hashtag#MCP(model context protocol) server. So now if I wanted to implement a vector database into my code, I just copy the URL, paste it in DevDocs and the tool grabs all the data from its child websites and spits it into markdown which is then uploaded into my MCP server for Claude to use. This cuts down weeks of research into just a bunch of questions. 
+
+## Roadmap:
+- [X] ~~Build a Minimum Viable Product with accurate functionality~~
+- [ ] Handle Complex websites documentation like AWS, MS, langchain.
+- [ ] Build and add MCP server so all md data is also available in the server. 
+- [ ] Turnkey Vector Database so all chunking, embedding is done behind the scenes while you sip your joe
+- [ ] Agents which will be pros in particular documentation and can code, architect or reason for you with the accurate information as ground truth.
+- [ ] Option to switch to LLM based crawling for specific usecase.
+- [ ] UI Improvements, cuz we flashy. 
+>>>>>>> Stashed changes
 
 This is V1 of DevDocs, eventually I will be adding MCP servers, Shareable Vector Database, Agents which will be pros in particular documentation and can code for you. 
 Stay tuned. 

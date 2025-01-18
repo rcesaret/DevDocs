@@ -13,6 +13,8 @@ from watchdog.observers import Observer
 
 logger = logging.getLogger(__name__)
 
+from .document_structure import DocumentStructure
+
 class MarkdownStore:
     """Manages markdown content and metadata."""
     
@@ -20,15 +22,58 @@ class MarkdownStore:
         self.base_path = Path(storage_path)
         self.content_cache = {}
         self.metadata_cache = {}
+        self.structure_cache = {}  # Cache for parsed document structures
         
     async def get_content(self, file_id: str) -> str:
         """Get markdown content."""
         file_path = self.base_path / f"{file_id}.md"
         try:
-            return file_path.read_text(encoding='utf-8')
+            content = file_path.read_text(encoding='utf-8')
+            # Parse and cache document structure
+            if file_id not in self.structure_cache:
+                structure = DocumentStructure()
+                structure.parse_document(content)
+                self.structure_cache[file_id] = structure
+            return content
         except Exception as e:
             logger.error(f"Error reading content for {file_id}: {e}")
             return f"Error reading content: {str(e)}"
+
+    async def get_section(self, file_id: str, section_id: str) -> str:
+        """Get a specific section from a markdown file."""
+        try:
+            if file_id not in self.structure_cache:
+                await self.get_content(file_id)  # This will parse and cache the structure
+            
+            structure = self.structure_cache[file_id]
+            section = structure.get_section_by_id(section_id)
+            
+            if not section:
+                return f"Section '{section_id}' not found in {file_id}"
+                
+            return f"Section: {section.title}\n\n{section.content}"
+        except Exception as e:
+            logger.error(f"Error getting section {section_id} from {file_id}: {e}")
+            return f"Error getting section: {str(e)}"
+
+    async def get_table_of_contents(self, file_id: str) -> str:
+        """Get table of contents for a markdown file."""
+        try:
+            if file_id not in self.structure_cache:
+                await self.get_content(file_id)  # This will parse and cache the structure
+            
+            structure = self.structure_cache[file_id]
+            toc = structure.get_table_of_contents()
+            
+            result = [f"Table of Contents for {file_id}:"]
+            for level, title, section_id in toc:
+                indent = "  " * level
+                result.append(f"{indent}- {title} [{section_id}]")
+            
+            return "\n".join(result)
+        except Exception as e:
+            logger.error(f"Error getting table of contents for {file_id}: {e}")
+            return f"Error getting table of contents: {str(e)}"
         
     async def get_metadata(self, file_id: str) -> dict:
         """Get metadata as a dictionary."""
@@ -335,6 +380,38 @@ class FastMarkdownServer:
                         "type": "object",
                         "properties": {}
                     }
+                ),
+                types.Tool(
+                    name="get_section",
+                    description="Get a specific section from a markdown file",
+                    inputSchema={
+                        "type": "object",
+                        "properties": {
+                            "file_id": {
+                                "type": "string",
+                                "description": "ID of the file (without .md extension)"
+                            },
+                            "section_id": {
+                                "type": "string",
+                                "description": "ID of the section to retrieve"
+                            }
+                        },
+                        "required": ["file_id", "section_id"]
+                    }
+                ),
+                types.Tool(
+                    name="get_table_of_contents",
+                    description="Get table of contents for a markdown file",
+                    inputSchema={
+                        "type": "object",
+                        "properties": {
+                            "file_id": {
+                                "type": "string",
+                                "description": "ID of the file (without .md extension)"
+                            }
+                        },
+                        "required": ["file_id"]
+                    }
                 )
             ]
 
@@ -372,6 +449,19 @@ class FastMarkdownServer:
                 return [types.TextContent(type="text", text=result)]
             elif name == "get_stats":
                 result = await self.store.get_stats()
+                return [types.TextContent(type="text", text=result)]
+            elif name == "get_section":
+                file_id = arguments.get("file_id")
+                section_id = arguments.get("section_id")
+                if not file_id or not section_id:
+                    raise ValueError("file_id and section_id are required")
+                result = await self.store.get_section(file_id, section_id)
+                return [types.TextContent(type="text", text=result)]
+            elif name == "get_table_of_contents":
+                file_id = arguments.get("file_id")
+                if not file_id:
+                    raise ValueError("file_id is required")
+                result = await self.store.get_table_of_contents(file_id)
                 return [types.TextContent(type="text", text=result)]
             else:
                 raise ValueError(f"Unknown tool: {name}")
