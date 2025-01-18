@@ -60,6 +60,7 @@ FRONTEND_PID=$!
 # Start FastAPI backend
 echo -e "${BLUE}Starting FastAPI backend...${NC}"
 cd backend
+source venv/bin/activate
 uvicorn app.main:app --host 0.0.0.0 --port 24125 --reload > ../logs/backend.log 2>&1 &
 BACKEND_PID=$!
 cd "$ROOT_DIR"
