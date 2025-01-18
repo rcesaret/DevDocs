@@ -39,50 +39,19 @@ Stay tuned.
 
 ## 🚀 Getting Started
 
-### Prerequisites
-- Node.js 18+
-- Python 3.12+
-- npm or yarn
-- pip
-
-### Installation
-
-1. Clone the repository:
 ```bash
-git clone https://github.com/cyberagiinc/DevDocs.git
-cd DevDocs
+# 1. Clone and install everything
+git clone https://github.com/cyberagi/DevDocs.git && cd DevDocs && ./fast-markdown-mcp/setup.sh
+
+# 2. Start all services
+./start.sh
 ```
 
-2. Install frontend dependencies:
-```bash
-npm install
-# or
-yarn install
-```
-
-3. Install backend dependencies:
-```bash
-cd backend
-pip install -r requirements.txt
-```
-
-### Running the Application
-
-1. Start the backend server:
-```bash
-cd backend
-uvicorn app.main:app --host 0.0.0.0 --port 24125 --reload
-```
-
-2. Start the frontend development server:
-```bash
-# In another terminal
-npm run dev
-# or
-yarn dev
-```
-
-3. Open [http://localhost:3000](http://localhost:3000) in your browser
+That's it! The system will:
+- Install all dependencies (npm, Python backend, MCP server)
+- Configure Claude Desktop integration
+- Start all services automatically
+- Open the application in your browser (http://localhost:3001)
 
 ## 💡 How to Use
 
