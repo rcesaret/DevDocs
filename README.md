@@ -15,15 +15,15 @@ The idea of DevDocs is to ensure that software engineers and (LLM) software devs
 ## Roadmap:
 - [X] ~~Build a Minimum Viable Product with accurate functionality~~
 - [ ] Handle Complex websites documentation like AWS, MS, langchain :D 
-- [ ] Adding MCP servers options to choose.
+- [X] ~~Adding MCP servers options to choose.~~
 - [ ] Turnkey Vector Database so all chunking, embedding is done behind the scenes while you sip your joe :) 
 - [ ] Agents which will be pros in particular documentation and can code, architect or reason for you with the accurate information as ground truth.
 - [ ] Option to switch to LLM based crawling for specific usecase.
 - [ ] UI Improvements, cuz we flashy. 
 
 
+![image](https://github.com/user-attachments/assets/8bdc3dfe-1fb9-4ace-8259-e6155f44ebcd)
 
-![image](https://github.com/user-attachments/assets/40f9e0b0-b662-46bf-821a-4dab23c54649)
 
 ## ✨ Features
 
