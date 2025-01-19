@@ -27,11 +27,20 @@ export default function StoredFiles() {
     const listFiles = async () => {
       try {
         const response = await fetch('/api/storage')
-        if (!response.ok) throw new Error('Failed to fetch files')
-        const data = await response.json()
-        setFiles(data.files)
+        if (!response.ok) {
+          const errorData = await response.json()
+          throw new Error(errorData.error || 'Failed to fetch files')
+        }
+        
+        const { success, files } = await response.json()
+        if (!success || !files) {
+          throw new Error('Invalid response format')
+        }
+        
+        setFiles(files)
       } catch (error) {
         console.error('Error loading stored files:', error)
+        setFiles([])
       } finally {
         setIsLoading(false)
       }
