@@ -39,7 +39,7 @@ The idea of DevDocs is to ensure that software engineers and (LLM) software devs
 
 ```bash
 # 1. Clone and install everything
-git clone https://github.com/cyberagi/DevDocs.git && cd DevDocs && ./fast-markdown-mcp/setup.sh
+git clone https://github.com/cyberagiinc/DevDocs.git && cd DevDocs && ./fast-markdown-mcp/setup.sh
 
 # 2. Start all services
 ./start.sh
