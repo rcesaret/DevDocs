@@ -14,19 +14,16 @@ New way: Using Devdocs (Free on Github) you get to just upload the primary URL a
 
 ## Roadmap:
 - [X] ~~Build a Minimum Viable Product with accurate functionality~~
-- [ ] Handle Complex websites documentation like AWS, MS, langchain.
-- [ ] Build and add MCP server so all md data is also available in the server. 
-- [ ] Turnkey Vector Database so all chunking, embedding is done behind the scenes while you sip your joe
+- [ ] Handle Complex websites documentation like AWS, MS, langchain :D 
+- [X] ~~Adding MCP servers options to choose.~~
+- [ ] Turnkey Vector Database so all chunking, embedding is done behind the scenes while you sip your joe :) 
 - [ ] Agents which will be pros in particular documentation and can code, architect or reason for you with the accurate information as ground truth.
 - [ ] Option to switch to LLM based crawling for specific usecase.
 - [ ] UI Improvements, cuz we flashy. 
 
 
-This is V1 of DevDocs, eventually I will be adding MCP servers, Shareable Vector Database, Agents which will be pros in particular documentation and can code for you. 
-Stay tuned. 
+![image](https://github.com/user-attachments/assets/8bdc3dfe-1fb9-4ace-8259-e6155f44ebcd)
 
-
-![image](https://github.com/user-attachments/assets/40f9e0b0-b662-46bf-821a-4dab23c54649)
 
 ## ✨ Features
 
@@ -36,75 +33,31 @@ Stay tuned.
 - 🎯 **Precision Extraction**: Focuses on meaningful content while filtering out noise
 - 🚄 **Real-time Progress**: Live updates on crawling progress and statistics
 - 💫 **Modern UI**: Sleek, responsive interface with real-time feedback
-
-## 🏗️ Architecture
-
-### Frontend (Next.js + TypeScript)
-- Modern React components with TypeScript
-- Real-time state management with React hooks
-- Tailwind CSS for styling
-- Shadcn UI components for consistent design
-
-### Backend (FastAPI + Python)
-- FastAPI for high-performance async API
-- Crawl4AI for intelligent web crawling
-- Advanced error handling and recovery
-- Session management for reliable crawling
+- 🔥 **Inbuilt MCP Server**: No need to copy paste into your MCP server, DevDocs already has an inbuild MCP server, already connect to your claude desktop app upon installation(restart needed) and gives you the commands you need to add to your cline MCP server configs. How cool is that? 
 
 ## 🚀 Getting Started
 
-### Prerequisites
-- Node.js 18+
-- Python 3.12+
-- npm or yarn
-- pip
-
-### Installation
-
-1. Clone the repository:
 ```bash
-git clone https://github.com/cyberagiinc/DevDocs.git
-cd DevDocs
+# 1. Clone and install everything
+git clone https://github.com/cyberagiinc/DevDocs.git && cd DevDocs && ./fast-markdown-mcp/setup.sh
+
+# 2. Start all services
+./start.sh
 ```
 
-2. Install frontend dependencies:
-```bash
-npm install
-# or
-yarn install
-```
-
-3. Install backend dependencies:
-```bash
-cd backend
-pip install -r requirements.txt
-```
-
-### Running the Application
-
-1. Start the backend server:
-```bash
-cd backend
-uvicorn app.main:app --host 0.0.0.0 --port 24125 --reload
-```
-
-2. Start the frontend development server:
-```bash
-# In another terminal
-npm run dev
-# or
-yarn dev
-```
-
-3. Open [http://localhost:3000](http://localhost:3000) in your browser
+That's it! The system will:
+- Install all dependencies (npm, Python backend, MCP server)
+- Configure Claude Desktop integration
+- Start all services automatically
+- Open the application in your browser (http://localhost:3001)
 
 ## 💡 How to Use
 
 1. Enter a documentation URL (e.g., https://docs.example.com)
 2. Click "Discover" to find all related pages
 3. Review the discovered pages in the list
-4. Click "Crawl All Pages" to extract content
-5. Download or copy the generated markdown
+4. Click "Crawl All Pages" to extract content. Go get some coffee, because it takes a while. 
+5. Download the generated markdown/json or use it with an inbuilt MCP server with Cline/Claude
 
 ## 🧩 Key Components
 
@@ -134,4 +87,4 @@ yarn dev
 Apache-2.0 license
 
 
-Built with ❤️ by CyberAGI Inc. | Report Issues like you would do for any Github repo, if you know how to fix it, provide a fix using the Contribution method. 
+Built with ❤️ by CyberAGI Inc. & Shubham Khichi

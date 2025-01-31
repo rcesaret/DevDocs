@@ -52,6 +52,19 @@ fi
 # Create a log directory
 mkdir -p logs
 
+# Install Python backend dependencies
+echo -e "${BLUE}Installing Python backend dependencies...${NC}"
+if [ -f "backend/requirements.txt" ]; then
+    cd "backend"
+    python3 -m venv venv
+    source venv/bin/activate
+    pip install -r requirements.txt
+    cd "$ROOT_DIR"
+else
+    echo -e "${RED}Error: requirements.txt not found in backend directory${NC}"
+    exit 1
+fi
+
 # Start Next.js frontend on port 3001
 echo -e "${BLUE}Starting Next.js frontend...${NC}"
 PORT=3001 npm run dev > logs/frontend.log 2>&1 &
@@ -60,6 +73,7 @@ FRONTEND_PID=$!
 # Start FastAPI backend
 echo -e "${BLUE}Starting FastAPI backend...${NC}"
 cd backend
+source venv/bin/activate
 uvicorn app.main:app --host 0.0.0.0 --port 24125 --reload > ../logs/backend.log 2>&1 &
 BACKEND_PID=$!
 cd "$ROOT_DIR"
