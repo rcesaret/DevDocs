@@ -1,12 +1,12 @@
-# DevDocs 🚀
+# DevDocs 🚀 by [CyberAGI Inc](https://www.cyberagi.ai)
+![image](https://github.com/user-attachments/assets/fe646224-bcd8-44ac-9631-08f96f6c07d1)
 
-A powerful documentation crawler and extractor that helps you discover, crawl, and convert web documentation into clean markdown format. Built with Next.js, FastAPI, and Crawl4AI.
+
+## Tech documenations suck, we just made it easier for you to digest it inside your LLM. 
 
 The idea of DevDocs is to ensure that software engineers and (LLM) software devs dont have to go through copious amount of tech documentation just to implement the tech. 
 
-Traditionally: You would use cline or equivalent to query what you want to build and it will build it for you using claude or deepseek, but the knowledge cut off date hinders the ability for Cline to provide you the best code for the technology. So you burn through tokens and go through the documentation of that technology and send it to cline or upload to an MCP server. Problem is that the docs are huuuge and you cant copy paste everything. Wouldnt it be easier if a complete markdown file is built for you to upload to your MCP server of choice? 
-
-New way: Using Devdocs (Free on Github) you get to just upload the primary URL and crawl every page related to that URL and download the contents in 1 concise markdown. Boom now you have complete knowledge of that tech ready for Cline to work through. This came from a personal frustration of mine when using the documentation of LlamaIndex and Langchain. I will be making improvements to the features so use it and star the repo so you are updated. 
+**Problem:** LLMs are great but they are OUTDATED, as a software developer I had to constantly refer to product knowledge from LlamaIndex, AutoGen and other Machine Learning frameworks to build our Excalibur Platform for cybersecurity and have LLM breakdown the problem. I was copy pasting content from each page into Claude to understand the context and break it down for me and soon the LLM started hallucinating.
 
 **Solution:** I built a unique platform called DevDocs which spiders through all the child pages of the primary URL, scans if the webpages are live or dead, parses every page (FREE of cost) and converts it into markdown for easy LLM digestion. You can take the markdown and embed into your vector database or use an MCP server like obsidian and load it into Cline for software development. 
 
@@ -51,28 +51,13 @@ That's it! The system will:
 - Start all services automatically
 - Open the application in your browser (http://localhost:3001)
 
-## 💡 How to Use
+## 💡 How to Use DevDocs: Super Difficult :) 
 
-1. Enter a documentation URL (e.g., https://docs.example.com)
+1. Enter a documentation URL (e.g., [https://docs.crawl4ai.com](https://docs.crewai.com/))
 2. Click "Discover" to find all related pages
 3. Review the discovered pages in the list
 4. Click "Crawl All Pages" to extract content. Go get some coffee, because it takes a while. 
 5. Download the generated markdown/json or use it with an inbuilt MCP server with Cline/Claude
-
-## 🧩 Key Components
-
-### Frontend Components
-- `UrlInput`: URL validation and submission
-- `SubdomainList`: Displays discovered pages
-- `ProcessingBlock`: Shows crawling progress
-- `MarkdownOutput`: Displays extracted content
-
-### Backend Services
-- `/api/discover`: Finds related documentation pages
-- `/api/crawl`: Extracts and converts content to markdown
-- Error handling and recovery
-- Session management
-
 
 ## 🤝 Contributing
 
@@ -86,5 +71,8 @@ That's it! The system will:
 
 Apache-2.0 license
 
+## Star History
+
+[![Star History Chart](https://api.star-history.com/svg?repos=cyberagiinc/DevDocs&type=Timeline)](https://star-history.com/#cyberagiinc/DevDocs&Timeline)
 
 Built with ❤️ by CyberAGI Inc. & Shubham Khichi
