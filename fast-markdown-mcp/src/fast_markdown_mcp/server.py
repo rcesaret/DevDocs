@@ -13,11 +13,8 @@ from watchdog.observers import Observer
 
 logger = logging.getLogger(__name__)
 
-<<<<<<< HEAD
 from .document_structure import DocumentStructure
 
-=======
->>>>>>> main
 class MarkdownStore:
     """Manages markdown content and metadata."""
     
@@ -25,16 +22,12 @@ class MarkdownStore:
         self.base_path = Path(storage_path)
         self.content_cache = {}
         self.metadata_cache = {}
-<<<<<<< HEAD
         self.structure_cache = {}  # Cache for parsed document structures
-=======
->>>>>>> main
         
     async def get_content(self, file_id: str) -> str:
         """Get markdown content."""
         file_path = self.base_path / f"{file_id}.md"
         try:
-<<<<<<< HEAD
             content = file_path.read_text(encoding='utf-8')
             # Parse and cache document structure
             if file_id not in self.structure_cache:
@@ -81,12 +74,6 @@ class MarkdownStore:
         except Exception as e:
             logger.error(f"Error getting table of contents for {file_id}: {e}")
             return f"Error getting table of contents: {str(e)}"
-=======
-            return file_path.read_text(encoding='utf-8')
-        except Exception as e:
-            logger.error(f"Error reading content for {file_id}: {e}")
-            return f"Error reading content: {str(e)}"
->>>>>>> main
         
     async def get_metadata(self, file_id: str) -> dict:
         """Get metadata as a dictionary."""
@@ -393,7 +380,6 @@ class FastMarkdownServer:
                         "type": "object",
                         "properties": {}
                     }
-<<<<<<< HEAD
                 ),
                 types.Tool(
                     name="get_section",
@@ -426,8 +412,6 @@ class FastMarkdownServer:
                         },
                         "required": ["file_id"]
                     }
-=======
->>>>>>> main
                 )
             ]
 
@@ -466,7 +450,6 @@ class FastMarkdownServer:
             elif name == "get_stats":
                 result = await self.store.get_stats()
                 return [types.TextContent(type="text", text=result)]
-<<<<<<< HEAD
             elif name == "get_section":
                 file_id = arguments.get("file_id")
                 section_id = arguments.get("section_id")
@@ -480,8 +463,6 @@ class FastMarkdownServer:
                     raise ValueError("file_id is required")
                 result = await self.store.get_table_of_contents(file_id)
                 return [types.TextContent(type="text", text=result)]
-=======
->>>>>>> main
             else:
                 raise ValueError(f"Unknown tool: {name}")
 
