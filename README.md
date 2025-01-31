@@ -34,14 +34,18 @@ The idea of DevDocs is to ensure that software engineers and (LLM) software devs
 - 🚄 **Real-time Progress**: Live updates on crawling progress and statistics
 - 💫 **Modern UI**: Sleek, responsive interface with real-time feedback
 - 🔥 **Inbuilt MCP Server**: No need to copy paste into your MCP server, DevDocs already has an inbuild MCP server, already connect to your claude desktop app upon installation(restart needed) and gives you the commands you need to add to your cline MCP server configs. How cool is that? 
+- 📕 **MCP Server:Section Based Document Retrival**: Efficiently navigate and load large markdown documents with section-based retrieval, preventing token limit issues while maintaining document structure. Check out the How to use DevDocs MCP Server in Cline below. 
 
 ## 🚀 Getting Started
 
+### 1. Clone and install everything
 ```bash
-# 1. Clone and install everything
-git clone https://github.com/cyberagiinc/DevDocs.git && cd DevDocs && ./fast-markdown-mcp/setup.sh
 
-# 2. Start all services
+git clone https://github.com/cyberagiinc/DevDocs.git && cd DevDocs && ./fast-markdown-mcp/setup.sh
+```
+
+### 2. Start all services
+```bash 
 ./start.sh
 ```
 
@@ -50,6 +54,7 @@ That's it! The system will:
 - Configure Claude Desktop integration
 - Start all services automatically
 - Open the application in your browser (http://localhost:3001)
+- Prepare Cline/Roo Code to use Section Based Document Retrival 
 
 ## 💡 How to Use DevDocs: Super Difficult :) 
 
@@ -59,6 +64,11 @@ That's it! The system will:
 4. Click "Crawl All Pages" to extract content. Go get some coffee, because it takes a while. 
 5. Download the generated markdown/json or use it with an inbuilt MCP server with Cline/Claude
 
+## 📕 How to use DevDocs MCP Server in Cline
+1. Once your documents are extracted via the UI, navigate to your code editor of choice (Roo Code or Cline.)
+2. In Cline Type: `Read the files in MCP server and tell me how to (your question) and use Table of Contents and Section Access to answer` 
+
+    *Note: This feature is not activated by default, we are working on it, meanwhile use the #2 format in the chat to invoke this feature*
 ## 🤝 Contributing
 
 1. Fork the repository
