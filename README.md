@@ -1,7 +1,8 @@
 # DevDocs by CyberAGI 🚀
 
 <div align="center">
-  <img src="image.png" alt="DevDocs Interface" width="800">
+  <img src="https://github.com/user-attachments/assets/6d4cc4df-fe5d-4483-9218-3d621f572e49" alt="DevDocs Interface" width="800">
+  <img src="https://github.com/user-attachments/assets/00350dc6-2ff3-40cf-b0b3-8b3e387d983d" alt="DevDocs Interface" width="800">
 
   <p align="center">
     <strong>Turn Weeks of Documentation Research into Hours of Productive Development</strong>
