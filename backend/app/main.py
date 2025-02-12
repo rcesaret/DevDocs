@@ -1,6 +1,6 @@
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel
+from pydantic import BaseModel, Field, validator
 from typing import List
 import uvicorn
 import logging
@@ -34,7 +34,13 @@ app.add_middleware(
 
 class DiscoverRequest(BaseModel):
     url: str
-    depth: int = 3  # Default depth of 3 if not provided
+    depth: int = Field(default=3, ge=1, le=5)  # Enforce depth between 1 and 5
+
+    @validator('depth')
+    def validate_depth(cls, v):
+        if not 1 <= v <= 5:
+            raise ValueError('Depth must be between 1 and 5')
+        return v
 
 class CrawlRequest(BaseModel):
     pages: List[DiscoveredPage]

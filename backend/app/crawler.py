@@ -1,22 +1,28 @@
-from typing import List, Optional
+from typing import List, Optional, Set
 import logging
+import sys
 from datetime import datetime
 from pydantic import BaseModel
 from crawl4ai import AsyncWebCrawler, BrowserConfig, CrawlerRunConfig, CacheMode
 from crawl4ai.content_filter_strategy import PruningContentFilter
 from crawl4ai.markdown_generation_strategy import DefaultMarkdownGenerator
+from urllib.parse import urljoin, urlparse
 
 # Configure logging
 logger = logging.getLogger(__name__)
 
+# Increase recursion limit for complex pages
+sys.setrecursionlimit(10000)
+
 class InternalLink(BaseModel):
     href: str
     text: str
+    status: str = 'pending'  # Default status for internal links
 
 class DiscoveredPage(BaseModel):
     url: str
     title: Optional[str] = None
-    status: str = "pending"
+    status: str = "pending"  # Default status for parent pages
     internalLinks: Optional[List[InternalLink]] = None
 
 class CrawlStats(BaseModel):
@@ -51,9 +57,9 @@ def get_crawler_config(session_id: str = None) -> CrawlerRunConfig:
     """Get crawler configuration for content extraction"""
     markdown_generator = DefaultMarkdownGenerator(
         content_filter=PruningContentFilter(
-            threshold=0.2,  # Lower threshold to keep more content
+            threshold=0.2,
             threshold_type="dynamic",
-            min_word_threshold=5  # Lower word threshold
+            min_word_threshold=5
         ),
         options={
             "body_width": 80,
@@ -63,58 +69,62 @@ def get_crawler_config(session_id: str = None) -> CrawlerRunConfig:
     )
     
     return CrawlerRunConfig(
-        # Content extraction settings
-        word_count_threshold=5,  # Lower threshold to match content filter
+        word_count_threshold=5,
         markdown_generator=markdown_generator,
-        
-        # Cache and performance
         cache_mode=CacheMode.ENABLED,
         verbose=True,
-        
-        # Page loading and lazy content
-        wait_until='domcontentloaded',  # Less strict than 'networkidle'
-        wait_for_images=True,  # Wait for images to fully load
-        scan_full_page=True,  # Scroll entire page to trigger lazy loading
-        scroll_delay=0.5,  # Delay between scroll steps
-        page_timeout=120000,  # 2 minutes timeout
-        
-        # Media and output settings
+        wait_until='domcontentloaded',
+        wait_for_images=True,
+        scan_full_page=True,
+        scroll_delay=0.5,
+        page_timeout=120000,
         screenshot=False,
         pdf=False,
-        
-        # Bot detection avoidance
-        magic=True  # Enable magic mode for better bot detection avoidance
+        magic=True
     )
 
-async def discover_pages(url: str, max_depth: int = 3, current_depth: int = 1, seen_urls: set = None) -> List[DiscoveredPage]:
-    """
-    Discover all related pages under a given URL using Crawl4AI's link analysis.
-    
-    Args:
-        url: The starting URL to crawl
-        max_depth: Maximum depth of crawling (default: 3)
-        current_depth: Current depth in the crawl (default: 1)
-        seen_urls: Set of already seen URLs (default: None)
-    """
+def normalize_url(url: str) -> str:
+    """Normalize URL by removing trailing slashes and fragments"""
+    parsed = urlparse(url)
+    path = parsed.path.rstrip('/')
+    if not path:
+        path = '/'
+    return f"{parsed.scheme}://{parsed.netloc}{path}"
+
+async def discover_pages(
+    url: str,
+    max_depth: int = 3,
+    current_depth: int = 1,
+    seen_urls: Set[str] = None,
+    parent_urls: Set[str] = None,
+    all_internal_links: Set[str] = None
+) -> List[DiscoveredPage]:
     if seen_urls is None:
         seen_urls = set()
+    if parent_urls is None:
+        parent_urls = set()
+    if all_internal_links is None:
+        all_internal_links = set()
     
+    url = normalize_url(url)
     discovered_pages = []
     logger.info(f"Starting discovery for URL: {url} at depth {current_depth}/{max_depth}")
     
-    if current_depth > max_depth:
+    if url in seen_urls or current_depth > max_depth:
+        logger.info(f"Skipping URL: {url} (seen: {url in seen_urls}, depth: {current_depth})")
         return discovered_pages
+        
+    seen_urls.add(url)
+    parent_urls.add(url)
     
     try:
         browser_config = get_browser_config()
         crawler_config = get_crawler_config()
-        seen_urls.add(url)
         
         async with AsyncWebCrawler(config=browser_config) as crawler:
             try:
                 result = await crawler.arun(url=url, config=crawler_config)
                 
-                # Extract title and add current page
                 title = "Untitled Page"
                 if result.markdown_v2 and result.markdown_v2.fit_markdown:
                     content_lines = result.markdown_v2.fit_markdown.split('\n')
@@ -123,63 +133,66 @@ async def discover_pages(url: str, max_depth: int = 3, current_depth: int = 1, s
                         if potential_title:
                             title = potential_title
 
-                # Process internal links
                 internal_links = []
                 if hasattr(result, 'links') and isinstance(result.links, dict):
-                    internal_links = [
-                        InternalLink(href=link.get("href", ""), text=link.get("text", "").strip())
-                        for link in result.links.get("internal", [])
-                        if link.get("href") and not any(excluded in link.get("href", "").lower() for excluded in [
+                    seen_internal_links = set()
+                    
+                    for link in result.links.get("internal", []):
+                        href = link.get("href", "")
+                        if not href:
+                            continue
+                            
+                        if not href.startswith(('http://', 'https://')):
+                            href = urljoin(url, href)
+                        href = normalize_url(href)
+                            
+                        if (href in parent_urls or 
+                            href in all_internal_links or 
+                            href in seen_internal_links):
+                            continue
+                            
+                        if any(excluded in href.lower() for excluded in [
                             "login", "signup", "register", "logout",
                             "account", "profile", "admin"
-                        ])
-                    ]
-                    logger.info(f"Found {len(internal_links)} internal links at depth {current_depth}")
+                        ]):
+                            continue
+                            
+                        base_domain = urlparse(url).netloc
+                        link_domain = urlparse(href).netloc
+                        if base_domain != link_domain:
+                            continue
+                            
+                        seen_internal_links.add(href)
+                        all_internal_links.add(href)
+                        
+                        internal_links.append(InternalLink(
+                            href=href,
+                            text=link.get("text", "").strip()
+                        ))
+                    
+                    logger.info(f"Found {len(internal_links)} unique internal links at depth {current_depth}")
 
                 primary_page = DiscoveredPage(
                     url=url,
                     title=title,
-                    status="crawled" if result.success else "pending",
                     internalLinks=internal_links
                 )
                 discovered_pages.append(primary_page)
 
-                # Recursively discover pages from internal links
                 if current_depth < max_depth:
                     for link in internal_links:
-                        try:
-                            href = link.href
-                            if href in seen_urls:
-                                continue
-                            
-                            # Ensure the URL is absolute
-                            if not href.startswith(('http://', 'https://')):
-                                from urllib.parse import urljoin
-                                href = urljoin(url, href)
-                            
-                            # Ensure the URL is from the same domain
-                            from urllib.parse import urlparse
-                            base_domain = urlparse(url).netloc
-                            link_domain = urlparse(href).netloc
-                            if base_domain != link_domain:
-                                continue
-
-                            # Recursively discover pages from this URL
-                            sub_pages = await discover_pages(
-                                url=href,
-                                max_depth=max_depth,
-                                current_depth=current_depth + 1,
-                                seen_urls=seen_urls
-                            )
-                            discovered_pages.extend(sub_pages)
-
-                        except Exception as e:
-                            logger.error(f"Error processing link {link}: {str(e)}")
-                            continue
+                        sub_pages = await discover_pages(
+                            url=link.href,
+                            max_depth=max_depth,
+                            current_depth=current_depth + 1,
+                            seen_urls=seen_urls,
+                            parent_urls=parent_urls,
+                            all_internal_links=all_internal_links
+                        )
+                        discovered_pages.extend(sub_pages)
 
             except Exception as e:
                 logger.error(f"Error crawling {url}: {str(e)}")
-                # Don't fail the whole crawl for one page
                 discovered_pages.append(
                     DiscoveredPage(
                         url=url,
@@ -201,6 +214,7 @@ async def crawl_pages(pages: List[DiscoveredPage]) -> CrawlResult:
     all_markdown = []
     total_size = 0
     errors = 0
+    crawled_urls = set()
     
     try:
         browser_config = get_browser_config()
@@ -210,6 +224,9 @@ async def crawl_pages(pages: List[DiscoveredPage]) -> CrawlResult:
         
         async with AsyncWebCrawler(config=browser_config) as crawler:
             for page in pages:
+                if page.url in crawled_urls:
+                    continue
+                    
                 try:
                     logger.info(f"Crawling page: {page.url}")
                     result = await crawler.arun(url=page.url, config=crawler_config)
@@ -218,7 +235,6 @@ async def crawl_pages(pages: List[DiscoveredPage]) -> CrawlResult:
                         page_markdown = f"# {page.title or 'Untitled Page'}\n"
                         page_markdown += f"URL: {page.url}\n\n"
                         
-                        # Try fit_markdown first, fall back to raw_markdown
                         content = None
                         if hasattr(result.markdown_v2, 'fit_markdown') and result.markdown_v2.fit_markdown:
                             content = result.markdown_v2.fit_markdown
@@ -228,7 +244,6 @@ async def crawl_pages(pages: List[DiscoveredPage]) -> CrawlResult:
                             logger.info(f"Falling back to raw_markdown for {page.url}")
                         
                         if content:
-                            # Filter out navigation instructions
                             filtered_lines = []
                             skip_next = False
                             for line in content.split('\n'):
@@ -236,12 +251,10 @@ async def crawl_pages(pages: List[DiscoveredPage]) -> CrawlResult:
                                     skip_next = False
                                     continue
                                     
-                                # Skip navigation instructions and their following lines
                                 if 'To navigate the symbols, press' in line:
                                     skip_next = True
                                     continue
                                     
-                                # Skip other navigation elements
                                 if any(x in line for x in [
                                     'Skip Navigation',
                                     'Search...',
@@ -259,23 +272,30 @@ async def crawl_pages(pages: List[DiscoveredPage]) -> CrawlResult:
                                 all_markdown.append(page_markdown)
                                 total_size += len(page_markdown.encode('utf-8'))
                                 logger.info(f"Successfully extracted content from {page.url}")
+                                
+                                # Mark URL as crawled
+                                crawled_urls.add(page.url)
+                                page.status = "crawled"
                             else:
                                 logger.warning(f"Skipping {page.url} - filtered content was empty")
                                 errors += 1
+                                page.status = "error"
                         else:
                             logger.warning(f"Skipping {page.url} - no markdown content available")
                             errors += 1
+                            page.status = "error"
                     else:
                         logger.warning(f"Skipping {page.url} - no valid result")
                         errors += 1
+                        page.status = "error"
                         
                 except Exception as e:
                     logger.error(f"Error crawling page {page.url}: {str(e)}")
                     errors += 1
+                    page.status = "error"
 
             combined_markdown = "".join(all_markdown)
             
-            # Calculate human-readable size
             size_str = f"{total_size} B"
             if total_size > 1024:
                 size_str = f"{total_size/1024:.2f} KB"
@@ -284,7 +304,7 @@ async def crawl_pages(pages: List[DiscoveredPage]) -> CrawlResult:
             
             stats = CrawlStats(
                 subdomains_parsed=len(pages),
-                pages_crawled=len(pages) - errors,
+                pages_crawled=len(crawled_urls),
                 data_extracted=size_str,
                 errors_encountered=errors
             )

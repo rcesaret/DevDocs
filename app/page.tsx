@@ -74,6 +74,18 @@ export default function Home() {
       const selectedPages = discoveredPages.filter(page => selectedUrls.includes(page.url))
       console.log('Starting crawl for selected pages:', selectedPages)
       
+      // Update status to pending for selected pages
+      setDiscoveredPages(pages =>
+        pages.map(page => ({
+          ...page,
+          status: selectedUrls.includes(page.url) ? 'pending' as const : page.status,
+          internalLinks: page.internalLinks?.map(link => ({
+            ...link,
+            status: selectedUrls.includes(link.href) ? 'pending' as const : link.status || 'pending'
+          }))
+        }))
+      )
+      
       const result = await crawlPages(selectedPages)
       console.log('Crawl result:', result)
       
@@ -92,6 +104,18 @@ export default function Home() {
           dataExtracted: formatBytes(result.markdown.length)
         }))
 
+        // Update status to crawled for successfully crawled pages
+        setDiscoveredPages(pages =>
+          pages.map(page => ({
+            ...page,
+            status: selectedUrls.includes(page.url) ? 'crawled' as const : page.status,
+            internalLinks: page.internalLinks?.map(link => ({
+              ...link,
+              status: selectedUrls.includes(link.href) ? 'crawled' as const : link.status || 'pending'
+            }))
+          }))
+        )
+
         toast({
           title: "Content Saved",
           description: `Crawled content has been saved and can be loaded again later`
@@ -105,13 +129,6 @@ export default function Home() {
         })
       }
       
-      setDiscoveredPages(pages =>
-        pages.map(page => ({
-          ...page,
-          status: selectedUrls.includes(page.url) ? 'crawled' : page.status
-        }))
-      )
-      
       toast({
         title: "Crawling Complete",
         description: "All pages have been crawled and processed"
@@ -122,6 +139,17 @@ export default function Home() {
         ...prev,
         errorsEncountered: prev.errorsEncountered + 1
       }))
+      // Update status to error for failed pages
+      setDiscoveredPages(pages =>
+        pages.map(page => ({
+          ...page,
+          status: selectedUrls.includes(page.url) ? 'error' as const : page.status,
+          internalLinks: page.internalLinks?.map(link => ({
+            ...link,
+            status: selectedUrls.includes(link.href) ? 'error' as const : link.status || 'pending'
+          }))
+        }))
+      )
       toast({
         title: "Error",
         description: error instanceof Error ? error.message : "Failed to crawl pages",
@@ -142,7 +170,6 @@ export default function Home() {
           <p className="text-gray-300 text-lg max-w-2xl mx-auto">
             Discover and extract documentation for quicker development
           </p>
-          <p className="text-sm text-gray-400 mt-2">by CyberAGI Inc</p>
         </div>
       </header>
 

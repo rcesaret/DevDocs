@@ -1,6 +1,7 @@
 export interface InternalLink {
   href: string
   text: string
+  status?: 'pending' | 'crawled' | 'error'
 }
 
 export interface DiscoveredPage {

@@ -21,13 +21,34 @@ export default function SubdomainList({ subdomains, onCrawlSelected, isProcessin
     setExpandedPages(new Set())
   }, [subdomains])
 
-  const togglePage = (url: string) => {
+  const togglePage = (url: string, page?: DiscoveredPage, isInternalLink: boolean = false) => {
     const newSelected = new Set(selectedPages)
-    if (newSelected.has(url)) {
-      newSelected.delete(url)
+
+    if (isInternalLink) {
+      // Handle internal link selection
+      if (newSelected.has(url)) {
+        newSelected.delete(url)
+      } else {
+        newSelected.add(url)
+      }
     } else {
-      newSelected.add(url)
+      // Handle parent URL selection
+      if (newSelected.has(url)) {
+        // When deselecting a parent URL, remove it and its internal links
+        newSelected.delete(url)
+        if (page?.internalLinks) {
+          page.internalLinks.forEach(link => newSelected.delete(link.href))
+        }
+      } else {
+        // When selecting a parent URL, add it and its internal links
+        newSelected.add(url)
+        if (page?.internalLinks) {
+          page.internalLinks.forEach(link => newSelected.add(link.href))
+          setExpandedPages(prev => new Set([...prev, url]))
+        }
+      }
     }
+
     setSelectedPages(newSelected)
   }
 
@@ -43,21 +64,35 @@ export default function SubdomainList({ subdomains, onCrawlSelected, isProcessin
 
   const toggleAll = () => {
     const allUrls = new Set<string>()
-    subdomains.forEach(page => {
-      allUrls.add(page.url)
+    const allSelected = subdomains.every(page => {
+      const hasAllLinks = page.internalLinks ? 
+        page.internalLinks.every(link => selectedPages.has(link.href)) : 
+        selectedPages.has(page.url)
+      return hasAllLinks && selectedPages.has(page.url)
     })
-    
-    // If all primary pages are selected, unselect everything
-    const allPrimarySelected = subdomains.every(page => selectedPages.has(page.url))
-    if (allPrimarySelected) {
+
+    if (allSelected) {
       setSelectedPages(new Set())
     } else {
+      subdomains.forEach(page => {
+        allUrls.add(page.url)
+        if (page.internalLinks) {
+          page.internalLinks.forEach(link => allUrls.add(link.href))
+        }
+      })
       setSelectedPages(allUrls)
     }
   }
 
   const getTotalUrls = () => {
-    return subdomains.length // Only count primary pages
+    let total = 0
+    subdomains.forEach(page => {
+      total++ // Count the main page
+      if (page.internalLinks) {
+        total += page.internalLinks.length // Count internal links
+      }
+    })
+    return total
   }
 
   const getStatusIcon = (status: string) => {
@@ -128,7 +163,7 @@ export default function SubdomainList({ subdomains, onCrawlSelected, isProcessin
       
       {/* Table Container */}
       <div className="rounded-xl border border-gray-700 overflow-hidden bg-gray-900/50 backdrop-blur-sm">
-        <ScrollArea className="h-[400px]">
+        <ScrollArea className="h-[600px]">
           <table className="w-full">
             <thead className="bg-gray-800/50 sticky top-0">
               <tr>
@@ -150,7 +185,7 @@ export default function SubdomainList({ subdomains, onCrawlSelected, isProcessin
                 <th className="px-4 py-3 text-left text-gray-400 font-medium">URL</th>
                 <th className="px-4 py-3 text-left text-gray-400 font-medium">Title</th>
                 <th className="px-4 py-3 text-left text-gray-400 font-medium">Internal Links</th>
-                <th className="px-4 py-3 text-left text-gray-400 font-medium">Status</th>
+                <th className="px-4 py-3 text-left text-gray-400 font-medium w-[120px]">Status</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-700/50">
@@ -173,15 +208,15 @@ export default function SubdomainList({ subdomains, onCrawlSelected, isProcessin
                             type="checkbox"
                             className="rounded border-gray-600 bg-gray-800 text-purple-500 focus:ring-purple-500"
                             checked={selectedPages.has(page.url)}
-                            onChange={() => togglePage(page.url)}
+                            onChange={() => togglePage(page.url, page)}
                             aria-label={`Select ${page.title || 'page'}`}
                           />
                         </div>
                       </td>
                       <td className="px-4 py-3">
                         <div className="flex items-center gap-2">
-                          <LinkIcon className="w-4 h-4 text-gray-500" />
-                          <span className="font-mono text-sm text-gray-300 truncate max-w-[300px]">
+                          <LinkIcon className="w-4 h-4 text-gray-500 flex-shrink-0" />
+                          <span className="font-mono text-sm text-gray-300 break-all">
                             {page.url}
                           </span>
                         </div>
@@ -223,23 +258,39 @@ export default function SubdomainList({ subdomains, onCrawlSelected, isProcessin
                         key={link.href}
                         className="bg-gray-800/20 border-t border-gray-700/30"
                       >
-                        <td className="px-4 py-2">
+                        <td className="px-4 py-3">
                           <div className="flex items-center pl-4">
                             <input
                               type="checkbox"
                               className="rounded border-gray-600 bg-gray-800 text-purple-500 focus:ring-purple-500"
                               checked={selectedPages.has(link.href)}
-                              onChange={() => togglePage(link.href)}
+                              onChange={() => togglePage(link.href, undefined, true)}
                               aria-label={`Select ${link.text || 'link'}`}
                             />
                           </div>
                         </td>
-                        <td className="px-4 py-2" colSpan={4}>
+                        <td className="px-4 py-3" colSpan={3}>
                           <div className="flex items-center gap-2 pl-4">
-                            <LinkIcon className="w-3 h-3 text-gray-500" />
-                            <span className="font-mono text-sm text-gray-400 truncate max-w-[300px]">
-                              {link.text || link.href}
-                            </span>
+                            <LinkIcon className="w-3 h-3 text-gray-500 flex-shrink-0" />
+                            <div className="flex flex-col">
+                              <span className="font-mono text-sm text-gray-400 break-all">
+                                {link.href}
+                              </span>
+                              {link.text && (
+                                <span className="text-sm text-gray-500 mt-1">
+                                  {link.text}
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                        </td>
+                        <td className="px-4 py-3">
+                          <div className={`
+                            inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-medium
+                            border ${getStatusStyle(link.status || 'pending')}
+                          `}>
+                            {getStatusIcon(link.status || 'pending')}
+                            <span>{link.status || 'pending'}</span>
                           </div>
                         </td>
                       </tr>
