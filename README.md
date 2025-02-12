@@ -98,6 +98,7 @@ git clone https://github.com/cyberagi/devdocs.git
 
 # Install all good stuff
 cd devdocs
+cd fast-markdown-mcp
 ./setup.sh
 
 # Run Devdocs, (next time just run ./start.sh as all requirements are already installed)
