@@ -4,12 +4,14 @@ import logging
 import signal
 import json
 import re
+import asyncio
 from pathlib import Path
 from typing import Optional, Dict, List
 import mcp.types as types
 from mcp.server import Server
 from mcp.server.stdio import stdio_server
 from watchdog.observers import Observer
+from watchdog.events import FileSystemEventHandler
 
 logger = logging.getLogger(__name__)
 
@@ -23,6 +25,18 @@ class MarkdownStore:
         self.content_cache = {}
         self.metadata_cache = {}
         self.structure_cache = {}  # Cache for parsed document structures
+        
+    async def sync_all_files(self):
+        """Initial sync of all files in the storage directory."""
+        logger.info("Starting initial sync of all files...")
+        try:
+            for md_file in self.base_path.glob("*.md"):
+                file_id = md_file.stem
+                await self.sync_file(file_id)
+            logger.info("Initial sync completed successfully")
+        except Exception as e:
+            logger.error(f"Error during initial sync: {e}")
+            raise
         
     async def get_content(self, file_id: str) -> str:
         """Get markdown content."""
@@ -99,10 +113,17 @@ class MarkdownStore:
     async def sync_file(self, file_id: str) -> str:
         """Force sync a file."""
         try:
+            # Clear caches for this file
+            self.content_cache.pop(file_id, None)
+            self.metadata_cache.pop(file_id, None)
+            self.structure_cache.pop(file_id, None)
+            
+            # Reload content and metadata
             content = await self.get_content(file_id)
             metadata = await self.get_metadata(file_id)
             self.content_cache[file_id] = content
             self.metadata_cache[file_id] = metadata
+            logger.info(f"Successfully synced {file_id}")
             return f"Successfully synced {file_id}"
         except Exception as e:
             logger.error(f"Error syncing {file_id}: {e}")
@@ -237,29 +258,42 @@ All Tags:
             logger.error(f"Error getting stats: {e}")
             return f"Error getting statistics: {str(e)}"
 
-class MarkdownWatcher:
-    """Watches for file system changes."""
+class MarkdownEventHandler(FileSystemEventHandler):
+    """Handles file system events for markdown files."""
     
-    def __init__(self, store: MarkdownStore):
+    def __init__(self, store: MarkdownStore, loop: asyncio.AbstractEventLoop):
         self.store = store
-        self.observer = Observer()
+        self.loop = loop
         
-    async def on_modified(self, event):
-        """Handle file modification events."""
-        if event.is_directory:
-            return
+    def sync_file(self, path: str):
+        """Sync a file when it's created or modified."""
+        if path.endswith(('.md', '.json')):
+            file_id = Path(path).stem
+            asyncio.run_coroutine_threadsafe(
+                self.store.sync_file(file_id),
+                self.loop
+            )
             
-        file_path = Path(event.src_path)
-        if file_path.suffix in ['.md', '.json']:
-            await self.store.sync_file(file_path.stem)
+    def on_created(self, event):
+        """Handle file creation."""
+        if not event.is_directory:
+            self.sync_file(event.src_path)
+            
+    def on_modified(self, event):
+        """Handle file modification."""
+        if not event.is_directory:
+            self.sync_file(event.src_path)
 
 class FastMarkdownServer:
     """MCP server for markdown content management."""
     
     def __init__(self, storage_path: str):
-        self.server = Server("fast-markdown")
+        self.server = Server("fast-markdown", version="1.0.0")  # Set default version
         self.store = MarkdownStore(storage_path)
-        self.watcher = MarkdownWatcher(self.store)
+        self.loop = asyncio.get_event_loop()
+        self.event_handler = MarkdownEventHandler(self.store, self.loop)
+        self.observer = Observer()
+        self.observer.schedule(self.event_handler, storage_path, recursive=False)
         self.setup_handlers()
         
     def setup_handlers(self):
@@ -469,18 +503,48 @@ class FastMarkdownServer:
     async def run(self):
         """Run the server."""
         logger.info("Starting server...")
-        async with stdio_server() as streams:
-            await self.server.run(
-                streams[0],
-                streams[1],
-                self.server.create_initialization_options()
-            )
+        # Start the file observer
+        self.observer.start()
+        
+        # Initial sync of all files
+        await self.store.sync_all_files()
+        
+        try:
+            # Keep the server running
+            while True:
+                try:
+                    async with stdio_server() as streams:
+                        await self.server.run(
+                            streams[0],
+                            streams[1],
+                            self.server.create_initialization_options()
+                        )
+                except Exception as e:
+                    logger.error(f"Server error: {e}")
+                    # Wait before retrying
+                    await asyncio.sleep(1)
+        finally:
+            self.observer.stop()
+            self.observer.join()
+            logger.info("Server shutdown complete")
 
 def setup_logging():
     """Configure logging."""
+    # Get the project root directory
+    root_dir = Path(__file__).parents[3].resolve()
+    log_dir = root_dir / "logs"
+    log_dir.mkdir(exist_ok=True)
+    
+    # Use absolute path for log file
+    log_path = log_dir / "mcp.log"
+    
     logging.basicConfig(
         level=logging.INFO,
-        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+        handlers=[
+            logging.FileHandler(str(log_path)),
+            logging.StreamHandler()
+        ]
     )
 
 def handle_sigterm(signum, frame):

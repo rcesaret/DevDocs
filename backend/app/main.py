@@ -76,7 +76,8 @@ async def get_mcp_config():
                     ],
                     "env": {
                         "PYTHONPATH": str(Path(root_dir) / "fast-markdown-mcp/src")
-                    }
+                    },
+                    "disabled": False
                 }
             }
         }
