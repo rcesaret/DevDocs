@@ -92,6 +92,8 @@ DevDocs brings documentation to you. Point it at any tech documentation URL, and
 
 We made using DevDocs extremely easy, no complex documentation to learn DevDocs. (UI is very intuitive and self learning)
 
+<ins>Mac & Linux(WSL) Users</ins>
+
 ```bash
 # Clone the repository
 git clone https://github.com/cyberagi/devdocs.git
@@ -111,6 +113,50 @@ mcp.log
 ```
 
 Visit `http://localhost:3001` and start scraping and discovering documents!
+
+<ins>Windows Users</ins>
+
+#### Option 1: Using Batch Scripts (Command Prompt)
+
+1. Run the setup script:
+   ```
+   fast-markdown-mcp\setup.bat
+   ```
+
+2. Start all services:
+   ```
+   start.bat
+   ```
+
+#### Option 2: Using PowerShell Script
+
+1. First, run the setup batch script:
+   ```
+   fast-markdown-mcp\setup.bat
+   ```
+
+2. Then start all services using PowerShell:
+   ```powershell
+   .\start.ps1
+   ```
+
+   Note: If you encounter execution policy restrictions, you may need to run:
+   ```powershell
+   Set-ExecutionPolicy -ExecutionPolicy Bypass -Scope Process
+   ```
+
+#### Option 3: Using Windows Subsystem for Linux (WSL)
+
+If you prefer a Linux-like environment on Windows:
+
+1. Install WSL by following the [official instructions](https://docs.microsoft.com/en-us/windows/wsl/install)
+2. Open a WSL terminal
+3. Navigate to your project directory
+4. Run the original Linux scripts:
+   ```bash
+   ./fast-markdown-mcp/setup.sh
+   ./start.sh
+   ```
 
 ## 🌍 Built for Developers, by Developers
 
