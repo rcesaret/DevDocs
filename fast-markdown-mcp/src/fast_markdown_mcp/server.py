@@ -538,14 +538,25 @@ def setup_logging():
     # Use absolute path for log file
     log_path = log_dir / "mcp.log"
     
-    logging.basicConfig(
-        level=logging.INFO,
-        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-        handlers=[
-            logging.FileHandler(str(log_path)),
-            logging.StreamHandler()
-        ]
-    )
+    # Configure file handler for all logs
+    file_handler = logging.FileHandler(str(log_path))
+    file_handler.setLevel(logging.INFO)
+    file_handler.setFormatter(logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s'))
+    
+    # Configure console handler with higher log level to reduce noise
+    console_handler = logging.StreamHandler()
+    console_handler.setLevel(logging.WARNING)  # Only show WARNING and above in console
+    console_handler.setFormatter(logging.Formatter('%(levelname)s: %(message)s'))
+    
+    # Configure root logger
+    root_logger = logging.getLogger()
+    root_logger.setLevel(logging.INFO)
+    root_logger.addHandler(file_handler)
+    root_logger.addHandler(console_handler)
+    
+    # Specifically set higher log level for MCP SDK's internal logging
+    mcp_logger = logging.getLogger('mcp.server.lowlevel')
+    mcp_logger.setLevel(logging.WARNING)
 
 def handle_sigterm(signum, frame):
     """Handle SIGTERM signal."""
