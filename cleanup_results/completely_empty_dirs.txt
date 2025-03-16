@@ -1,5 +1,0 @@
-./cleanup_results
-./crawl_results
-./backend/storage/markdown
-./backend/venv/include/python3.12
-./fast-markdown-mcp/venv/include/python3.12

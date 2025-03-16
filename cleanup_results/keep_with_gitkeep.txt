@@ -1,3 +1,0 @@
-./crawl_results
-./backend/storage/markdown
-./backend/storage
