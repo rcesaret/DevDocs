@@ -1,0 +1,107 @@
+{
+  "title": "Documentation for https://mcp-framework.com/docs/introduction",
+  "root_url": "https://mcp-framework.com/docs/introduction",
+  "timestamp": "2025-03-16T03:41:12.572702",
+  "pages": [
+    {
+      "title": "Untitled",
+      "url": "https://mcp-framework.com/docs/introduction",
+      "timestamp": "2025-03-16T03:41:12.572835",
+      "internal_links": 15,
+      "external_links": 4
+    },
+    {
+      "title": "Untitled",
+      "url": "https://mcp-framework.com/",
+      "timestamp": "2025-03-16T03:41:13.658857",
+      "internal_links": 4,
+      "external_links": 3
+    },
+    {
+      "title": "Untitled",
+      "url": "https://mcp-framework.com/docs/installation",
+      "timestamp": "2025-03-16T03:41:14.865303",
+      "internal_links": 19,
+      "external_links": 6
+    },
+    {
+      "title": "Untitled",
+      "url": "https://mcp-framework.com/docs/Authentication/overview",
+      "timestamp": "2025-03-16T03:41:15.892553",
+      "internal_links": 20,
+      "external_links": 4
+    },
+    {
+      "title": "Untitled",
+      "url": "https://mcp-framework.com/docs/Examples/fiscal-data",
+      "timestamp": "2025-03-16T03:41:16.934628",
+      "internal_links": 21,
+      "external_links": 5
+    },
+    {
+      "title": "Untitled",
+      "url": "https://mcp-framework.com/docs/Prompts/prompts-overview",
+      "timestamp": "2025-03-16T03:41:18.017580",
+      "internal_links": 24,
+      "external_links": 4
+    },
+    {
+      "title": "Untitled",
+      "url": "https://mcp-framework.com/docs/Resources/resources-overview",
+      "timestamp": "2025-03-16T03:41:19.041653",
+      "internal_links": 22,
+      "external_links": 4
+    },
+    {
+      "title": "Untitled",
+      "url": "https://mcp-framework.com/docs/Tools/tools-overview",
+      "timestamp": "2025-03-16T03:41:20.064366",
+      "internal_links": 26,
+      "external_links": 4
+    },
+    {
+      "title": "Untitled",
+      "url": "https://mcp-framework.com/docs/quickstart",
+      "timestamp": "2025-03-16T03:41:21.083754",
+      "internal_links": 23,
+      "external_links": 5
+    },
+    {
+      "title": "Untitled",
+      "url": "https://mcp-framework.com/docs/Transports/stdio-transport",
+      "timestamp": "2025-03-16T03:41:22.105408",
+      "internal_links": 25,
+      "external_links": 4
+    },
+    {
+      "title": "Untitled",
+      "url": "https://mcp-framework.com/docs/Transports/sse",
+      "timestamp": "2025-03-16T03:41:23.125496",
+      "internal_links": 28,
+      "external_links": 4
+    },
+    {
+      "title": "Untitled",
+      "url": "https://mcp-framework.com/docs/debugging",
+      "timestamp": "2025-03-16T03:41:24.150847",
+      "internal_links": 24,
+      "external_links": 4
+    },
+    {
+      "title": "Untitled",
+      "url": "https://mcp-framework.com/docs/server-configuration",
+      "timestamp": "2025-03-16T03:41:26.195846",
+      "internal_links": 26,
+      "external_links": 4
+    },
+    {
+      "title": "Untitled",
+      "url": "https://mcp-framework.com/docs/Transports/transports-overview",
+      "timestamp": "2025-03-16T03:41:27.209597",
+      "internal_links": 17,
+      "external_links": 4
+    }
+  ],
+  "is_consolidated": true,
+  "last_updated": "2025-03-16T03:41:27.209603"
+}

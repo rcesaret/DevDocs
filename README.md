@@ -9,12 +9,13 @@
   </p>
 
   <p align="center">
-    <a href="#perfect-for">Perfect For</a> •
-    <a href="#features">Features</a> •
-    <a href="#why-devdocs">Why DevDocs</a> •
-    <a href="#getting-started">Getting Started</a> •
-    <a href="#pricing-comparison">Compare to FireCrawl</a> •
-    <a href="#join-our-community">Discord</a>
+    <a href="#-perfect-for">Perfect For</a> •
+    <a href="#-features">Features</a> •
+    <a href="#-why-devdocs">Why DevDocs</a> •
+    <a href="#-getting-started">Getting Started</a> •
+    <a href="#-scripts-and-their-purpose">Scripts</a> •
+    <a href="#-pricing-comparison">Compare to FireCrawl</a> •
+    <a href="#-join-our-community">Discord</a>
   </p>
 </div>
 
@@ -90,72 +91,125 @@ DevDocs brings documentation to you. Point it at any tech documentation URL, and
 
 ## 🚀 Getting Started
 
-We made using DevDocs extremely easy, no complex documentation to learn DevDocs. (UI is very intuitive and self learning)
+DevDocs is designed to be easy to use with Docker, requiring minimal setup for new users.
 
-<ins>Mac & Linux(WSL) Users</ins>
+### Prerequisites
 
+- [Docker](https://docs.docker.com/get-docker/) and [Docker Compose](https://docs.docker.com/compose/install/) installed on your system
+- Git for cloning the repository
+
+### Quick Start with Docker (Recommended)
+
+For Mac/Linux users:
 ```bash
 # Clone the repository
 git clone https://github.com/cyberagiinc/DevDocs.git
 
-# Install all good stuff
+# Navigate to the project directory
 cd DevDocs
-./fast-markdown-mcp/setup.sh
 
-# Run Devdocs, (next time just run ./start.sh as all requirements are already installed)
-./start.sh
-
-#logs are located under /logs for 
-backend.log 
-frontend.log 
-mcp.log
+# Start all services using Docker
+./docker-start.sh
 ```
 
-Visit `http://localhost:3001` and start scraping and discovering documents!
+For Windows users:
+```cmd
+# Clone the repository
+git clone https://github.com/cyberagiinc/DevDocs.git
 
-<ins>Windows Users</ins>
+# Navigate to the project directory
+cd DevDocs
 
-#### Option 1: Using Batch Scripts (Command Prompt)
+# Start all services using Docker
+docker-start.bat
+```
 
-1. Run the setup script:
-   ```
-   fast-markdown-mcp\setup.bat
-   ```
+> **Note for Windows Users**: If you encounter permission issues, you may need to run the script as administrator or manually set permissions on the logs, storage, and crawl_results directories. The script uses the `icacls` command to set permissions, which might require elevated privileges on some Windows systems.
+>
+> **Manually Setting Permissions on Windows**:
+>
+> If you need to manually set permissions, you can do so using either the Windows GUI or command line:
+>
+> **Using Windows Explorer**:
+> 1. Right-click on each directory (logs, storage, crawl_results)
+> 2. Select "Properties"
+> 3. Go to the "Security" tab
+> 4. Click "Edit" to change permissions
+> 5. Click "Add" to add users/groups
+> 6. Type "Everyone" and click "Check Names"
+> 7. Click "OK"
+> 8. Select "Everyone" in the list
+> 9. Check "Full control" under "Allow"
+> 10. Click "Apply" and "OK"
+>
+> **Using Command Prompt (as Administrator)**:
+> ```cmd
+> icacls logs /grant Everyone:F /T
+> icacls storage /grant Everyone:F /T
+> icacls crawl_results /grant Everyone:F /T
+> ```
 
-2. Start all services:
-   ```
-   start.bat
-   ```
+This single command will:
+1. Create all necessary directories
+2. Set appropriate permissions
+3. Build and start all Docker containers
+4. Monitor the services to ensure they're running properly
 
-#### Option 2: Using PowerShell Script
+### Accessing DevDocs
 
-1. First, run the setup batch script:
-   ```
-   fast-markdown-mcp\setup.bat
-   ```
+Once the services are running:
+- Frontend UI: http://localhost:3001
+- Backend API: http://localhost:24125
+- Crawl4AI Service: http://localhost:11235
 
-2. Then start all services using PowerShell:
-   ```powershell
-   .\start.ps1
-   ```
+### Logs and Monitoring
 
-   Note: If you encounter execution policy restrictions, you may need to run:
-   ```powershell
-   Set-ExecutionPolicy -ExecutionPolicy Bypass -Scope Process
-   ```
+When using Docker, logs can be accessed :
 
-#### Option 3: Using Windows Subsystem for Linux (WSL)
-
-If you prefer a Linux-like environment on Windows:
-
-1. Install WSL by following the [official instructions](https://docs.microsoft.com/en-us/windows/wsl/install)
-2. Open a WSL terminal
-3. Navigate to your project directory
-4. Run the original Linux scripts:
+1. **Container Logs** (recommended for debugging):
    ```bash
-   ./fast-markdown-mcp/setup.sh
-   ./start.sh
+   # View logs from a specific container
+   docker logs devdocs-frontend
+   docker logs devdocs-backend
+   docker logs devdocs-mcp
+   docker logs devdocs-crawl4ai
+   
+   # Follow logs in real-time
+   docker logs -f devdocs-backend
    ```
+
+To stop all services, press `Ctrl+C` in the terminal where docker-start is running.
+
+## 📜 Scripts and Their Purpose
+
+DevDocs includes various utility scripts to help with development, testing, and maintenance. Here's a quick reference:
+
+### Startup Scripts
+- `start.sh` / `start.bat` / `start.ps1` - Start all services (frontend, backend, MCP) for local development.
+- `docker-start.sh` / `docker-start.bat` - Start all services using Docker containers.
+
+### MCP Server Scripts
+- `check_mcp_health.sh` - Verify the MCP server's health and configuration status.
+- `restart_and_test_mcp.sh` - Restart Docker containers with updated MCP configuration and test connectivity.
+
+### Crawl4AI Scripts
+- `check_crawl4ai.sh` - Check the status and health of the Crawl4AI service.
+- `debug_crawl4ai.sh` - Run Crawl4AI in debug mode with verbose logging for troubleshooting.
+- `test_crawl4ai.py` - Run tests against the Crawl4AI service to verify functionality.
+- `test_from_container.sh` - Test the Crawl4AI service from within a Docker container.
+
+### Utility Scripts
+- `view_result.sh` - Display crawl results in a formatted view.
+- `find_empty_folders.sh` - Identify empty directories in the project structure.
+- `analyze_empty_folders.sh` - Analyze empty folders and categorize them by risk level.
+- `verify_reorganization.sh` - Verify that code reorganization was successful.
+
+These scripts are organized in the following directories:
+- Root directory: Main scripts for common operations
+- `scripts/general/`: General utility scripts
+- `scripts/docker/`: Docker-specific scripts
+- `scripts/mcp/`: MCP server management scripts
+- `scripts/test/`: Testing and verification scripts
 
 ## 🌍 Built for Developers, by Developers
 
@@ -226,7 +280,7 @@ Final Output Construction: The final answer should be organized, directly addres
 
 ## 📝 Technology Partners
 
-<img src="image-6.png" width="200" height="100"> <img src="image-7.png" width="250" height="100"> <img src="image-8.png" width="300" height="100">
+<img src="assets/image-6.png" width="200" height="100"> <img src="assets/image-7.png" width="250" height="100"> <img src="assets/image-8.png" width="300" height="100">
 
 ## Star History
 
