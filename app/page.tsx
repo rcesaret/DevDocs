@@ -6,7 +6,7 @@ import ProcessingBlock from '@/components/ProcessingBlock'
 import SubdomainList from '@/components/SubdomainList'
 import MarkdownOutput from '@/components/MarkdownOutput'
 import StoredFiles from '@/components/StoredFiles'
-import MCPServerStatus from '@/components/MCPServerStatus'
+import ConfigSettings from '@/components/ConfigSettings'
 import { discoverSubdomains, crawlPages, validateUrl, formatBytes } from '@/lib/crawl-service'
 import { saveMarkdown, loadMarkdown } from '@/lib/storage'
 import { useToast } from "@/components/ui/use-toast"
@@ -205,17 +205,13 @@ export default function Home() {
           />
         </div>
 
-        <div className="grid grid-cols-2 gap-6">
-          <div className="bg-gray-800/50 backdrop-blur-lg rounded-2xl p-6 border border-gray-700 shadow-xl">
-            <h2 className="text-2xl font-semibold mb-4 text-white">MCP Server</h2>
-            <MCPServerStatus />
-          </div>
-
-          <div className="bg-gray-800/50 backdrop-blur-lg rounded-2xl p-6 border border-gray-700 shadow-xl">
-            <h2 className="text-2xl font-semibold mb-4 text-blue-400">Stored Files</h2>
-            <StoredFiles />
-          </div>
+        <div className="bg-gray-800/50 backdrop-blur-lg rounded-2xl p-6 border border-gray-700 shadow-xl">
+          <h2 className="text-2xl font-semibold mb-4 text-blue-400">Consolidated Files</h2>
+          <StoredFiles />
         </div>
+        
+        {/* Config and Settings popup with MCP Server and Discovered Pages */}
+        <ConfigSettings />
       </div>
 
       <footer className="py-8 text-center text-gray-400">

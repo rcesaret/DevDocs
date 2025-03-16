@@ -4,20 +4,6 @@ import { ScrollArea } from './ui/scroll-area';
 import { Button } from './ui/button';
 import { toast } from './ui/use-toast';
 
-interface ServerConfig {
-  command: string;
-  args: string[];
-  env: {
-    PYTHONPATH: string;
-  };
-}
-
-interface MCPConfig {
-  mcpServers: {
-    'fast-markdown': ServerConfig;
-  };
-}
-
 interface ServerStatus {
   status: 'running' | 'stopped' | 'partial' | 'error';
   pid?: number;
@@ -27,40 +13,39 @@ interface ServerStatus {
 const MCPServerStatus = () => {
   const [status, setStatus] = useState<ServerStatus>({ status: 'stopped' });
   const [logs, setLogs] = useState<string[]>([]);
-  const [config, setConfig] = useState<MCPConfig | null>(null);
+  
+  // Use the exact configuration specified by the user
+  const exactConfig = {
+    "mcpServers": {
+      "fast-markdown": {
+        "command": "docker",
+        "args": [
+          "exec",
+          "-i",
+          "devdocs-mcp",
+          "python",
+          "-m",
+          "fast_markdown_mcp.server",
+          "/app/storage/markdown"
+        ],
+        "env": {},
+        "disabled": false,
+        "alwaysAllow": [
+          "sync_file",
+          "get_status",
+          "list_files",
+          "read_file",
+          "search_files",
+          "search_by_tag",
+          "get_stats",
+          "get_section",
+          "get_table_of_contents"
+        ]
+      }
+    }
+  };
 
   useEffect(() => {
-    // Use environment variables or fallback to default paths
-    const rootDir = process.env.NEXT_PUBLIC_ROOT_DIR || '/Users/cyberagi/Documents/GitHub/DevDocs';
-    
-    // Fetch the configuration from the backend
-    const getConfig = async () => {
-      try {
-        const response = await fetch('http://localhost:24125/api/mcp/config');
-        if (response.ok) {
-          const data = await response.json();
-          setConfig(data);
-        }
-      } catch (error) {
-        console.error('Error fetching config:', error);
-        // Fallback to default config if API fails
-        const defaultConfig: MCPConfig = {
-          mcpServers: {
-            'fast-markdown': {
-              command: `${rootDir}/fast-markdown-mcp/venv/bin/python`,
-              args: [
-                '-m', 'fast_markdown_mcp.server',
-                `${rootDir}/storage/markdown`
-              ],
-              env: {
-                PYTHONPATH: `${rootDir}/fast-markdown-mcp/src`
-              }
-            }
-          }
-        };
-        setConfig(defaultConfig);
-      }
-    };
 
     const checkStatus = async () => {
       try {
@@ -72,7 +57,7 @@ const MCPServerStatus = () => {
           details: data.details
         });
       } catch (error) {
-        setStatus({ 
+        setStatus({
           status: 'error',
           details: error instanceof Error ? error.message : 'Failed to check status'
         });
@@ -92,7 +77,6 @@ const MCPServerStatus = () => {
     };
 
     // Initial fetch
-    getConfig();
     checkStatus();
     getLogs();
 
@@ -119,23 +103,21 @@ const MCPServerStatus = () => {
   };
 
   const copyConfig = () => {
-    if (config) {
-      navigator.clipboard.writeText(JSON.stringify(config, null, 2))
-        .then(() => {
-          toast({
-            title: "Configuration Copied",
-            description: "Configuration copied to clipboard",
-          });
-        })
-        .catch((error) => {
-          console.error('Error copying config:', error);
-          toast({
-            title: "Error",
-            description: "Failed to copy configuration",
-            variant: "destructive",
-          });
+    navigator.clipboard.writeText(JSON.stringify(exactConfig, null, 2))
+      .then(() => {
+        toast({
+          title: "Configuration Copied",
+          description: "Configuration copied to clipboard",
         });
-    }
+      })
+      .catch((error) => {
+        console.error('Error copying config:', error);
+        toast({
+          title: "Error",
+          description: "Failed to copy configuration",
+          variant: "destructive",
+        });
+      });
   };
 
   return (
@@ -165,7 +147,7 @@ const MCPServerStatus = () => {
         </div>
         <div className="bg-gray-900/50 rounded-xl p-4 border border-gray-700/50">
           <pre className="text-sm font-mono text-gray-300 whitespace-pre-wrap overflow-x-auto">
-            {config ? JSON.stringify(config, null, 2) : 'Loading configuration...'}
+            {JSON.stringify(exactConfig, null, 2)}
           </pre>
         </div>
       </div>

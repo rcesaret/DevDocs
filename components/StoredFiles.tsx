@@ -8,6 +8,9 @@ import StorageIcon from '@mui/icons-material/Storage'
 import AccessTimeIcon from '@mui/icons-material/AccessTime'
 import DownloadIcon from '@mui/icons-material/Download'
 import DataObjectIcon from '@mui/icons-material/DataObject'
+import CollectionsBookmarkIcon from '@mui/icons-material/CollectionsBookmark'
+import MemoryIcon from '@mui/icons-material/Memory'
+import Badge from '@mui/material/Badge'
 
 interface StoredFile {
   name: string
@@ -17,6 +20,10 @@ interface StoredFile {
   size: number
   wordCount: number
   charCount: number
+  isConsolidated?: boolean
+  pagesCount?: number
+  rootUrl?: string
+  isInMemory?: boolean
 }
 
 export default function StoredFiles() {
@@ -56,13 +63,47 @@ export default function StoredFiles() {
     return () => clearInterval(interval)
   }, [])
 
-  const handleDownload = (path: string, type: 'json' | 'markdown') => {
-    const a = document.createElement('a')
-    a.href = `/api/storage/download?path=${encodeURIComponent(path)}`
-    a.download = path.split('/').pop() || `content.${type === 'json' ? 'json' : 'md'}`
-    document.body.appendChild(a)
-    a.click()
-    document.body.removeChild(a)
+  const handleDownload = async (path: string, type: 'json' | 'markdown', isInMemory?: boolean) => {
+    if (isInMemory) {
+      try {
+        // For in-memory files, we need to fetch the content from the backend API
+        const fileId = path.split('/').pop()?.replace(/\.(json|md)$/, '') || ''
+        const response = await fetch(`/api/memory-file?id=${encodeURIComponent(fileId)}`)
+        
+        if (!response.ok) {
+          console.error('Failed to fetch in-memory file:', response.statusText)
+          return
+        }
+        
+        const data = await response.json()
+        
+        if (!data.success || !data.content) {
+          console.error('Invalid response format or empty content')
+          return
+        }
+        
+        // Create a blob and download it
+        const blob = new Blob([data.content], { type: type === 'json' ? 'application/json' : 'text/markdown' })
+        const url = URL.createObjectURL(blob)
+        const a = document.createElement('a')
+        a.href = url
+        a.download = path.split('/').pop() || `content.${type === 'json' ? 'json' : 'md'}`
+        document.body.appendChild(a)
+        a.click()
+        document.body.removeChild(a)
+        URL.revokeObjectURL(url)
+      } catch (error) {
+        console.error('Error downloading in-memory file:', error)
+      }
+    } else {
+      // For disk files, use the existing download API
+      const a = document.createElement('a')
+      a.href = `/api/storage/download?path=${encodeURIComponent(path)}`
+      a.download = path.split('/').pop() || `content.${type === 'json' ? 'json' : 'md'}`
+      document.body.appendChild(a)
+      a.click()
+      document.body.removeChild(a)
+    }
   }
 
   const formatProjectName = (name: string) => {
@@ -122,6 +163,12 @@ export default function StoredFiles() {
               </th>
               <th className="px-4 py-3 text-left">
                 <div className="flex items-center gap-1.5">
+                  <CollectionsBookmarkIcon className="w-4 h-4 text-amber-400" />
+                  <span className="text-sm font-medium text-gray-300">Pages</span>
+                </div>
+              </th>
+              <th className="px-4 py-3 text-left">
+                <div className="flex items-center gap-1.5">
                   <StorageIcon className="w-4 h-4 text-white" />
                   <span className="text-sm font-medium text-gray-300">Size</span>
                   <span className="text-xs text-gray-500">(KB)</span>
@@ -145,12 +192,40 @@ export default function StoredFiles() {
             {files.map((file) => (
               <tr key={file.name} className="group hover:bg-gray-800/40 transition-all duration-200 ease-in-out">
                 <td className="px-6 py-4">
-                  <span className="text-gray-300 font-medium">
-                    {formatProjectName(file.name)}
-                  </span>
+                  <div className="flex items-center gap-2">
+                    {file.isConsolidated && (
+                      <Badge
+                        color="success"
+                        variant="dot"
+                        className="mr-1"
+                      />
+                    )}
+                    {file.isInMemory && (
+                      <div title="In-memory file">
+                        <MemoryIcon className="w-4 h-4 text-purple-400 mr-1" />
+                      </div>
+                    )}
+                    <span className="text-gray-300 font-medium">
+                      {formatProjectName(file.name)}
+                    </span>
+                  </div>
                 </td>
                 <td className="px-6 py-4 text-gray-300">
                   {file.wordCount.toLocaleString()}
+                </td>
+                <td className="px-6 py-4 text-gray-300">
+                  {file.isConsolidated ? (
+                    <div className="flex justify-center">
+                      <div className="inline-flex items-center justify-center px-3 py-1 rounded-full text-xs font-medium bg-amber-500/90 text-white shadow-sm">
+                        <span>{file.pagesCount || 'Multiple'}</span>
+                        <span className="ml-1 opacity-80">pages</span>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="flex justify-center">
+                      <span className="text-gray-500 px-3 py-1">Single</span>
+                    </div>
+                  )}
                 </td>
                 <td className="px-6 py-4 text-gray-300">
                   {(file.size / 1024).toFixed(1)}
@@ -167,7 +242,7 @@ export default function StoredFiles() {
                 <td className="px-4 py-3">
                   <div className="flex items-center justify-end gap-3">
                     <Button
-                      onClick={() => handleDownload(file.jsonPath, 'json')}
+                      onClick={() => handleDownload(file.jsonPath, 'json', file.isInMemory)}
                       variant="outline"
                       size="icon"
                       title="Download as JSON data"
@@ -176,13 +251,13 @@ export default function StoredFiles() {
                       <DataObjectIcon className="w-4 h-4 text-yellow-400" />
                     </Button>
                     <Button
-                      onClick={() => handleDownload(file.markdownPath, 'markdown')}
+                      onClick={() => handleDownload(file.markdownPath, 'markdown', file.isInMemory)}
                       variant="outline"
                       size="icon"
-                      title="Download Markdown"
-                      className="h-8 w-8 bg-gray-800 hover:bg-sky-500/20 border-sky-400/20 hover:border-sky-400/40"
+                      title={file.isConsolidated ? "Download Consolidated Markdown" : "Download Markdown"}
+                      className={`h-8 w-8 bg-gray-800 hover:bg-sky-500/20 border-sky-400/20 hover:border-sky-400/40 ${file.isConsolidated ? 'ring-1 ring-green-400/30' : ''}`}
                     >
-                      <DescriptionIcon className="w-5 h-5 text-white" />
+                      <DescriptionIcon className={`w-5 h-5 ${file.isConsolidated ? 'text-green-400' : 'text-white'}`} />
                     </Button>
                   </div>
                 </td>
