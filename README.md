@@ -95,7 +95,7 @@ DevDocs is designed to be easy to use with Docker, requiring minimal setup for n
 
 ### Prerequisites
 
-- [Docker](https://docs.docker.com/get-docker/) and [Docker Compose](https://docs.docker.com/compose/install/) installed on your system
+- [Docker](https://docs.docker.com/get-docker/) installed on your system
 - Git for cloning the repository
 
 ### Quick Start with Docker (Recommended)
@@ -123,8 +123,10 @@ cd DevDocs
 # Start all services using Docker
 docker-start.bat
 ```
+<details>
+<summary>Note for Windows Users</summary>
 
-> **Note for Windows Users**: If you encounter permission issues, you may need to run the script as administrator or manually set permissions on the logs, storage, and crawl_results directories. The script uses the `icacls` command to set permissions, which might require elevated privileges on some Windows systems.
+> If you encounter permission issues, you may need to run the script as administrator or manually set permissions on the logs, storage, and crawl_results directories. The script uses the `icacls` command to set permissions, which might require elevated privileges on some Windows systems.
 >
 > **Manually Setting Permissions on Windows**:
 >
@@ -148,6 +150,15 @@ docker-start.bat
 > icacls storage /grant Everyone:F /T
 > icacls crawl_results /grant Everyone:F /T
 > ```
+</details> 
+
+<details>
+<summary>Note about docker-compose.yml on Windows</summary>
+
+> If you encounter issues with the docker-compose.yml file (such as "Top-level object must be a mapping" error), the `docker-start.bat` script automatically fixes this by ensuring the file has the correct format and encoding. This fix is applied every time you run the script, so you don't need to manually modify the file.
+</details>
+
+
 
 This single command will:
 1. Create all necessary directories
